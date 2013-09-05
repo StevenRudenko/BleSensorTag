@@ -16,8 +16,8 @@ There were SensorTag UUIDs linked in application to get information from BLE dev
     <li>Accelerometer</li>
     <li>Gyroscope</li>
     <li>Magnetometer</li>
-    <li>Humidity Sensor (doedn't work for me though)</li>
-    <li>Pressure Sensor (not implemented)</li>
+    <li>Humidity Sensor (doesn't work for SensorTag with FW v1.01)</li>
+    <li>Pressure Sensor (not implemented yet)</li>
     <ul/>
   </td>
 </tr>
