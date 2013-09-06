@@ -64,6 +64,10 @@ public abstract class TiSensor<T> {
         return true;
     }
 
+    public boolean isAccessable() {
+        return true;
+    }
+
     public void execute(BluetoothGatt bluetoothGatt, ExecuteAction action) {
         switch (action) {
             case TURN_ON:
@@ -101,13 +105,15 @@ public abstract class TiSensor<T> {
         final UUID dataUuid = UUID.fromString(getDataUUID());
         final UUID CCC = UUID.fromString(CHARACTERISTIC_CONFIG);
 
-        // enable/disable locally
         final BluetoothGattService service = bluetoothGatt.getService(serviceUuid);
         final BluetoothGattCharacteristic dataCharacteristic = service.getCharacteristic(dataUuid);
-        bluetoothGatt.setCharacteristicNotification(dataCharacteristic, start);
 
-        // enable/disable remotely
         final BluetoothGattDescriptor config = dataCharacteristic.getDescriptor(CCC);
+        if (config == null)
+            return;
+        // enable/disable locally
+        bluetoothGatt.setCharacteristicNotification(dataCharacteristic, start);
+        // enable/disable remotely
         config.setValue(start ? BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE : BluetoothGattDescriptor.DISABLE_NOTIFICATION_VALUE);
         bluetoothGatt.writeDescriptor(config);
     }
@@ -122,14 +128,22 @@ public abstract class TiSensor<T> {
      * */
     protected static Integer shortSignedAtOffset(BluetoothGattCharacteristic c, int offset) {
         Integer lowerByte = c.getIntValue(FORMAT_UINT8, offset);
+        if (lowerByte == null)
+            return 0;
         Integer upperByte = c.getIntValue(FORMAT_SINT8, offset + 1); // Note: interpret MSB as signed.
+        if (upperByte == null)
+            return 0;
 
         return (upperByte << 8) + lowerByte;
     }
 
     protected static Integer shortUnsignedAtOffset(BluetoothGattCharacteristic c, int offset) {
         Integer lowerByte = c.getIntValue(FORMAT_UINT8, offset);
+        if (lowerByte == null)
+            return 0;
         Integer upperByte = c.getIntValue(FORMAT_UINT8, offset + 1); // Note: interpret MSB as unsigned.
+        if (upperByte == null)
+            return 0;
 
         return (upperByte << 8) + lowerByte;
     }

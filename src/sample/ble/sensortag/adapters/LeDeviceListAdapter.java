@@ -9,6 +9,7 @@ import android.widget.BaseAdapter;
 import android.widget.TextView;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 
 import sample.ble.sensortag.R;
 
@@ -16,18 +17,21 @@ import sample.ble.sensortag.R;
  *  Created by steven on 9/5/13.
  */
 public class LeDeviceListAdapter extends BaseAdapter {
-    private ArrayList<BluetoothDevice> leDevices;
-    private LayoutInflater inflater;
+    private final LayoutInflater inflater;
+
+    private final ArrayList<BluetoothDevice> leDevices;
+    private final HashMap<BluetoothDevice, Integer> rssiMap = new HashMap<BluetoothDevice, Integer>();
 
     public LeDeviceListAdapter(Context context) {
         leDevices = new ArrayList<BluetoothDevice>();
         inflater = LayoutInflater.from(context);
     }
 
-    public void addDevice(BluetoothDevice device) {
+    public void addDevice(BluetoothDevice device, int rssi) {
         if(!leDevices.contains(device)) {
             leDevices.add(device);
         }
+        rssiMap.put(device, rssi);
     }
 
     public BluetoothDevice getDevice(int position) {
@@ -62,6 +66,7 @@ public class LeDeviceListAdapter extends BaseAdapter {
             viewHolder = new ViewHolder();
             viewHolder.deviceAddress = (TextView) view.findViewById(R.id.device_address);
             viewHolder.deviceName = (TextView) view.findViewById(R.id.device_name);
+            viewHolder.deviceRssi = (TextView) view.findViewById(R.id.device_rssi);
             view.setTag(viewHolder);
         } else {
             viewHolder = (ViewHolder) view.getTag();
@@ -74,6 +79,7 @@ public class LeDeviceListAdapter extends BaseAdapter {
         else
             viewHolder.deviceName.setText(R.string.unknown_device);
         viewHolder.deviceAddress.setText(device.getAddress());
+        viewHolder.deviceRssi.setText(""+rssiMap.get(device)+" dBm");
 
         return view;
     }
@@ -81,5 +87,6 @@ public class LeDeviceListAdapter extends BaseAdapter {
     private static class ViewHolder {
         TextView deviceName;
         TextView deviceAddress;
+        TextView deviceRssi;
     }
 }

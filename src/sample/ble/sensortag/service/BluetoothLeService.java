@@ -317,6 +317,9 @@ public class BluetoothLeService extends Service {
             return;
         }
 
+        if (!sensor.isAccessable())
+            return;
+
         if (enabled) {
             if (sensor.isTurnable()) {
                 gattQuery.push(sensor, TiSensor.ExecuteAction.TURN_ON);

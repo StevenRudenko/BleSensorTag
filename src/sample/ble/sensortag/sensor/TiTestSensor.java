@@ -1,5 +1,6 @@
 package sample.ble.sensortag.sensor;
 
+import android.bluetooth.BluetoothGatt;
 import android.bluetooth.BluetoothGattCharacteristic;
 
 /**
@@ -36,6 +37,26 @@ public class TiTestSensor extends TiSensor<Void> {
     @Override
     public String toString(BluetoothGattCharacteristic c) {
         return "";
+    }
+
+    @Override
+    public boolean isAccessable() {
+        return false;
+    }
+
+    @Override
+    public boolean isTurnable() {
+        return false;
+    }
+
+    @Override
+    public void execute(BluetoothGatt bluetoothGatt, ExecuteAction action) {
+        //TODO: implement this service firstly
+    }
+
+    @Override
+    protected void notify(BluetoothGatt bluetoothGatt, boolean start) {
+        //TODO: implement this service firstly
     }
 
     @Override

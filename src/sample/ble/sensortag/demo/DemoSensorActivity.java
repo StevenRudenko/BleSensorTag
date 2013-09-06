@@ -47,8 +47,11 @@ public abstract class DemoSensorActivity extends Activity {
                 final TiSensor<?> sensor = TiSensors.getSensor(serviceUuid);
                 bluetoothLeService.setCharacteristicNotification(sensor, true);
             } else if (BluetoothLeService.ACTION_DATA_AVAILABLE.equals(action)) {
-                final TiSensor<?> sensor = TiSensors.getSensor(serviceUuid);
                 final byte[] data = intent.getByteArrayExtra(BluetoothLeService.EXTRA_DATA);
+                if (data == null || data.length == 0)
+                    return;
+
+                final TiSensor<?> sensor = TiSensors.getSensor(serviceUuid);
                 final String text = intent.getStringExtra(BluetoothLeService.EXTRA_TEXT);
                 onDataRecieved(sensor, data, text);
             }
