@@ -1,16 +1,15 @@
 package sample.ble.sensortag.sensor;
 
-import android.bluetooth.BluetoothGatt;
 import android.bluetooth.BluetoothGattCharacteristic;
+
+import sample.ble.sensortag.BluetoothGattExecutor;
 
 /**
  * Created by steven on 9/3/13.
  */
 public class TiTestSensor extends TiSensor<Void> {
 
-    public static final TiTestSensor INSTANCE = new TiTestSensor();
-
-    private TiTestSensor() {
+    TiTestSensor() {
         super();
     }
 
@@ -35,32 +34,22 @@ public class TiTestSensor extends TiSensor<Void> {
     }
 
     @Override
-    public String toString(BluetoothGattCharacteristic c) {
+    public String getDataString() {
         return "";
     }
 
     @Override
-    public boolean isAccessable() {
-        return false;
+    public BluetoothGattExecutor.ServiceAction[] enable(boolean enable) {
+        return new BluetoothGattExecutor.ServiceAction[0];
     }
 
     @Override
-    public boolean isTurnable() {
-        return false;
+    public BluetoothGattExecutor.ServiceAction notify(boolean start) {
+        return BluetoothGattExecutor.ServiceAction.NULL;
     }
 
     @Override
-    public void execute(BluetoothGatt bluetoothGatt, ExecuteAction action) {
-        //TODO: implement this service firstly
-    }
-
-    @Override
-    protected void notify(BluetoothGatt bluetoothGatt, boolean start) {
-        //TODO: implement this service firstly
-    }
-
-    @Override
-    public Void onCharacteristicChanged(BluetoothGattCharacteristic c) {
+    public Void parse(BluetoothGattCharacteristic c) {
         //TODO: implement method
         return null;
     }

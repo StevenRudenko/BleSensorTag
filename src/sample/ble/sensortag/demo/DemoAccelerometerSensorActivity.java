@@ -40,10 +40,10 @@ public class DemoAccelerometerSensorActivity extends DemoSensorActivity {
     }
 
     @Override
-    public void onDataRecieved(TiSensor<?> sensor, byte[] data, String text) {
+    public void onDataRecieved(TiSensor<?> sensor, String text) {
         if (sensor instanceof TiAccelerometerSensor) {
             final TiAccelerometerSensor accSensor = (TiAccelerometerSensor) sensor;
-            float[] values = accSensor.onCharacteristicChanged(data);
+            float[] values = accSensor.getData();
             renderer.setRotation(values);
 
             viewText.setText(text);

@@ -1,17 +1,27 @@
 package sample.ble.sensortag.sensor;
 
-import static android.bluetooth.BluetoothGattCharacteristic.FORMAT_SINT8;
-
 import android.bluetooth.BluetoothGattCharacteristic;
+
+import sample.ble.sensortag.BluetoothGattExecutor;
+
+import static android.bluetooth.BluetoothGattCharacteristic.FORMAT_SINT8;
 
 /**
  * Created by steven on 9/3/13.
  */
 public class TiAccelerometerSensor extends TiSensor<float[]> {
 
-    public static final TiAccelerometerSensor INSTANCE = new TiAccelerometerSensor();
+    private static final String UUID_SERVICE = "f000aa10-0451-4000-b000-000000000000";
+    private static final String UUID_DATA = "f000aa11-0451-4000-b000-000000000000";
+    private static final String UUID_CONFIG = "f000aa12-0451-4000-b000-000000000000";
+    private static final String UUID_PERIOD = "f000aa13-0451-4000-b000-000000000000";
 
-    private TiAccelerometerSensor() {
+    public static final int PERIOD_MIN = 10;
+    public static final int PERIOD_MAX = 255;
+
+    private int period = 100;
+
+    TiAccelerometerSensor() {
         super();
     }
 
@@ -22,28 +32,73 @@ public class TiAccelerometerSensor extends TiSensor<float[]> {
 
     @Override
     public String getServiceUUID() {
-        return "f000aa10-0451-4000-b000-000000000000";
+        return UUID_SERVICE;
     }
 
     @Override
     public String getDataUUID() {
-        return "f000aa11-0451-4000-b000-000000000000";
+        return UUID_DATA;
     }
 
     @Override
     public String getConfigUUID() {
-        return "f000aa12-0451-4000-b000-000000000000";
+        return UUID_CONFIG;
     }
-    //TODO: there is period service
-
 
     @Override
-    public String toString(BluetoothGattCharacteristic c) {
-        final float[] data = onCharacteristicChanged(c);
+    public boolean isConfigUUID(String uuid) {
+        if (uuid.equals(UUID_PERIOD))
+            return true;
+        return super.isConfigUUID(uuid);
+    }
+
+    @Override
+    public String getCharacteristicName(String uuid) {
+        if (UUID_PERIOD.equals(uuid))
+            return getName() + " Period";
+        return super.getCharacteristicName(uuid);
+    }
+
+    @Override
+    public String getDataString() {
+        final float[] data = getData();
         return "x="+data[0]+"\ny="+data[1]+"\nz="+data[2];
     }
 
-    public float[] onCharacteristicChanged(final BluetoothGattCharacteristic c) {
+    public void setPeriod(int period) {
+        this.period = period;
+    }
+
+    public int getPeriod() {
+        return period;
+    }
+
+    @Override
+    public BluetoothGattExecutor.ServiceAction[] enable(boolean enable) {
+        return new BluetoothGattExecutor.ServiceAction[] {
+                write(getConfigUUID(), getConfigValues(enable)),
+                notify(enable)
+        };
+    }
+
+    @Override
+    public BluetoothGattExecutor.ServiceAction update() {
+        return write(UUID_PERIOD, new byte[]{(byte) period});
+    }
+
+    @Override
+    public boolean onCharacteristicRead(BluetoothGattCharacteristic c) {
+        super.onCharacteristicRead(c);
+
+        if ( !c.getUuid().toString().equals(UUID_PERIOD) )
+            return false;
+
+        period = TiSensorUtils.shortUnsignedAtOffset(c, 0);
+        return true;
+    }
+
+    @Override
+    public float[] parse(final BluetoothGattCharacteristic c) {
     /*
      * The accelerometer has the range [-2g, 2g] with unit (1/64)g.
      *

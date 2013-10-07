@@ -30,5 +30,13 @@
             android:layout_height="wrap_content"
             android:layout_toLeftOf="@id/modes"
             android:layout_below="@+id/name" />
+    <SeekBar
+            android:id="@+id/seek"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_toLeftOf="@id/modes"
+            android:layout_below="@+id/name"
+            android:visibility="gone" />
+
 
 </RelativeLayout>

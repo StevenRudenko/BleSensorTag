@@ -1,17 +1,15 @@
 package sample.ble.sensortag.sensor;
 
-import static java.lang.Math.pow;
-
 import android.bluetooth.BluetoothGattCharacteristic;
+
+import static java.lang.Math.pow;
 
 /**
  * Created by steven on 9/3/13.
  */
 public class TiTemperatureSensor extends TiSensor<float[]> {
 
-    public static final TiTemperatureSensor INSTANCE = new TiTemperatureSensor();
-
-    private TiTemperatureSensor() {
+    TiTemperatureSensor() {
         super();
     }
 
@@ -36,12 +34,13 @@ public class TiTemperatureSensor extends TiSensor<float[]> {
     }
 
     @Override
-    public String toString(BluetoothGattCharacteristic c) {
-        final float[] data = onCharacteristicChanged(c);
+    public String getDataString() {
+        final float[] data = getData();
         return "ambient="+data[0]+"\ntarget="+data[1];
     }
 
-    public float[] onCharacteristicChanged(BluetoothGattCharacteristic c) {
+    @Override
+    public float[] parse(BluetoothGattCharacteristic c) {
 
     /* The IR Temperature sensor produces two measurements;
      * Object ( AKA target or IR) Temperature,
@@ -59,13 +58,13 @@ public class TiTemperatureSensor extends TiSensor<float[]> {
         return new float[]{(float)ambient, (float)target};
     }
 
-    private double extractAmbientTemperature(BluetoothGattCharacteristic c) {
+    private static double extractAmbientTemperature(BluetoothGattCharacteristic c) {
         int offset = 2;
-        return shortUnsignedAtOffset(c, offset) / 128.0;
+        return TiSensorUtils.shortUnsignedAtOffset(c, offset) / 128.0;
     }
 
-    private double extractTargetTemperature(BluetoothGattCharacteristic c, double ambient) {
-        Integer twoByteValue = shortSignedAtOffset(c, 0);
+    private static double extractTargetTemperature(BluetoothGattCharacteristic c, double ambient) {
+        Integer twoByteValue = TiSensorUtils.shortSignedAtOffset(c, 0);
 
         double Vobj2 = twoByteValue.doubleValue();
         Vobj2 *= 0.00000015625;

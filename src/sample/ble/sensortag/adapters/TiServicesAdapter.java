@@ -3,11 +3,11 @@ package sample.ble.sensortag.adapters;
 import android.bluetooth.BluetoothGattCharacteristic;
 import android.bluetooth.BluetoothGattService;
 import android.content.Context;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseExpandableListAdapter;
+import android.widget.SeekBar;
 import android.widget.TextView;
 
 import java.util.ArrayList;
@@ -23,10 +23,12 @@ import sample.ble.sensortag.sensor.TiSensors;
 /**
  * Created by steven on 9/5/13.
  */
-public class BluetoothGattServicesAdapter extends BaseExpandableListAdapter {
+public class TiServicesAdapter extends BaseExpandableListAdapter {
 
-    public interface OnDemoClickListener {
+    public interface OnServiceItemClickListener {
         public void onDemoClick(BluetoothGattService service);
+        public void onServiceEnabled(BluetoothGattService service, boolean enabled);
+        public void onServiceUpdated(BluetoothGattService service);
     }
 
     private static final String MODE_READ = "R";
@@ -37,9 +39,9 @@ public class BluetoothGattServicesAdapter extends BaseExpandableListAdapter {
     private final HashMap<BluetoothGattService, ArrayList<BluetoothGattCharacteristic>> characteristics;
     private final LayoutInflater inflater;
 
-    private OnDemoClickListener demoClickListener;
+    private OnServiceItemClickListener serviceListener;
 
-    public BluetoothGattServicesAdapter(Context context, List<BluetoothGattService> gattServices) {
+    public TiServicesAdapter(Context context, List<BluetoothGattService> gattServices) {
         inflater = LayoutInflater.from(context);
 
         services = new ArrayList<BluetoothGattService>(gattServices.size());
@@ -51,8 +53,8 @@ public class BluetoothGattServicesAdapter extends BaseExpandableListAdapter {
         }
     }
 
-    public void setDemoClickListener(OnDemoClickListener listener) {
-        this.demoClickListener = listener;
+    public void setServiceListener(OnServiceItemClickListener listener) {
+        this.serviceListener = listener;
     }
 
     @Override
@@ -104,10 +106,10 @@ public class BluetoothGattServicesAdapter extends BaseExpandableListAdapter {
             holder.demo.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    if (demoClickListener == null)
+                    if (serviceListener == null)
                         return;
                     final BluetoothGattService service = (BluetoothGattService) holder.demo.getTag();
-                    demoClickListener.onDemoClick(service);
+                    serviceListener.onDemoClick(service);
                 }
             });
 
@@ -144,6 +146,33 @@ public class BluetoothGattServicesAdapter extends BaseExpandableListAdapter {
             holder.name = (TextView) convertView.findViewById(R.id.name);
             holder.uuid = (TextView) convertView.findViewById(R.id.uuid);
             holder.modes = (TextView) convertView.findViewById(R.id.modes);
+            holder.seek = (SeekBar) convertView.findViewById(R.id.seek);
+            holder.seek.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+                @Override
+                public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                    if (serviceListener == null || !fromUser)
+                        return;
+
+                    final TiSensor<?> sensor = TiSensors.getSensor(holder.service.getUuid().toString());
+                    if (sensor == null)
+                        return;
+
+                    if (sensor instanceof TiAccelerometerSensor) {
+                        final TiAccelerometerSensor accelerometerSensor = (TiAccelerometerSensor) sensor;
+                        accelerometerSensor.setPeriod(progress + TiAccelerometerSensor.PERIOD_MIN);
+
+                        serviceListener.onServiceUpdated(holder.service);
+                    }
+                }
+
+                @Override
+                public void onStartTrackingTouch(SeekBar seekBar) {
+                }
+
+                @Override
+                public void onStopTrackingTouch(SeekBar seekBar) {
+                }
+            });
 
             convertView.setTag(holder);
         } else {
@@ -154,8 +183,36 @@ public class BluetoothGattServicesAdapter extends BaseExpandableListAdapter {
         final TiSensor<?> sensor = TiSensors.getSensor(item.getService().getUuid().toString());
 
         final String uuid = item.getUuid().toString();
-        final String name = sensor != null ? sensor.getCharacteristicName(uuid) : "Unknown";
+        final String name;
         final String modes = getModeString(item.getProperties());
+
+        holder.service = item.getService();
+
+        if ( sensor != null ) {
+            name = sensor.getCharacteristicName(uuid);
+
+            if ( sensor.isConfigUUID(uuid) ) {
+                if ( sensor instanceof TiAccelerometerSensor ) {
+                    final TiAccelerometerSensor accelerometerSensor = (TiAccelerometerSensor) sensor;
+
+                    final int max = TiAccelerometerSensor.PERIOD_MAX - TiAccelerometerSensor.PERIOD_MIN;
+                    final int value = accelerometerSensor.getPeriod() - TiAccelerometerSensor.PERIOD_MIN;
+                    holder.seek.setMax(max);
+                    holder.seek.setProgress(value);
+
+                    holder.seek.setVisibility(View.VISIBLE);
+                    holder.uuid.setVisibility(View.GONE);
+                }
+            } else {
+                holder.uuid.setVisibility(View.VISIBLE);
+                holder.seek.setVisibility(View.GONE);
+            }
+        } else {
+            name = "Unknown";
+
+            holder.uuid.setVisibility(View.VISIBLE);
+            holder.seek.setVisibility(View.GONE);
+        }
 
         holder.name.setText(name);
         holder.uuid.setText(uuid);
@@ -202,8 +259,11 @@ public class BluetoothGattServicesAdapter extends BaseExpandableListAdapter {
     }
 
     private static class ChildViewHolder {
+        public BluetoothGattService service;
+
         public TextView name;
         public TextView uuid;
         public TextView modes;
+        public SeekBar seek;
     }
 }

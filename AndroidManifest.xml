@@ -16,8 +16,8 @@ limitations under the License.
 -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
           package="sample.ble.sensortag"
-          android:versionCode="1"
-          android:versionName="0.1b">
+          android:versionCode="3"
+          android:versionName="0.3b">
     <uses-sdk android:minSdkVersion="18"
               android:targetSdkVersion="18"/>
     <!-- Declare this required feature if you want to make the app available to BLE-capable
@@ -39,9 +39,9 @@ limitations under the License.
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
         </activity>
-        <activity android:name=".DeviceControlActivity"/>
+        <activity android:name=".DeviceServicesActivity"/>
         <activity android:name=".demo.DemoAccelerometerSensorActivity"/>
         <activity android:name=".demo.DemoGyroscopeSensorActivity"/>
-        <service android:name=".service.BluetoothLeService" android:enabled="true"/>
+        <service android:name=".BleService" android:enabled="true"/>
     </application>
 </manifest>

@@ -2,22 +2,25 @@ package sample.ble.sensortag.sensor;
 
 import static java.lang.Math.pow;
 
-import android.bluetooth.BluetoothGatt;
 import android.bluetooth.BluetoothGattCharacteristic;
-import android.bluetooth.BluetoothGattService;
 
-import java.util.UUID;
+import sample.ble.sensortag.BluetoothGattExecutor;
 
 /**
  * Created by steven on 9/3/13.
  */
 public class TiPressureSensor extends TiSensor<Double> {
 
-    public static final TiPressureSensor INSTANCE = new TiPressureSensor();
+    private static final String UUID_SERVICE = "f000aa40-0451-4000-b000-000000000000";
+    private static final String UUID_DATA = "f000aa41-0451-4000-b000-000000000000";
+    private static final String UUID_CONFIG = "f000aa42-0451-4000-b000-000000000000";
+    private static final String UUID_CALIBRATION = "f000aa43-0451-4000-b000-000000000000";
 
-    private int[] calibration;
+    private static final byte[] CALIBRATION_DATA = new byte[] { 2 };
 
-    private TiPressureSensor() {
+    private final int[] calibration = new int[8];
+
+    TiPressureSensor() {
         super();
     }
 
@@ -28,41 +31,63 @@ public class TiPressureSensor extends TiSensor<Double> {
 
     @Override
     public String getServiceUUID() {
-        return "f000aa40-0451-4000-b000-000000000000";
+        return UUID_SERVICE;
     }
 
     @Override
     public String getDataUUID() {
-        return "f000aa41-0451-4000-b000-000000000000";
+        return UUID_DATA;
     }
 
     @Override
     public String getConfigUUID() {
-        return "f000aa42-0451-4000-b000-000000000000";
-    }
-    //TODO: there is period service
-
-
-    @Override
-    protected void enable(BluetoothGatt bluetoothGatt, boolean enable) {
-        super.enable(bluetoothGatt, enable);
-
-        final UUID serviceUuid = UUID.fromString(getServiceUUID());
-        final UUID calibrationUuid = UUID.fromString("f000aa43-0451-4000-b000-000000000000");
-
-        final BluetoothGattService magnetService = bluetoothGatt.getService(serviceUuid);
-        final BluetoothGattCharacteristic config = magnetService.getCharacteristic(calibrationUuid);
-        bluetoothGatt.readCharacteristic(config);
+        return UUID_CONFIG;
     }
 
     @Override
-    public String toString(BluetoothGattCharacteristic c) {
-        final double data = onCharacteristicChanged(c);
+    public String getCharacteristicName(String uuid) {
+        if (UUID_CALIBRATION.equals(uuid))
+            return getName() + " Calibration";
+        return super.getCharacteristicName(uuid);
+    }
+
+    @Override
+    public boolean onCharacteristicRead(BluetoothGattCharacteristic c) {
+        super.onCharacteristicRead(c);
+
+        if ( !c.getUuid().toString().equals(UUID_CALIBRATION) )
+            return false;
+
+        for (int i=0; i<4; ++i) {
+            calibration[i] = TiSensorUtils.shortUnsignedAtOffset(c, i * 2);
+            calibration[i+4] = TiSensorUtils.shortSignedAtOffset(c, 8 + i * 2);
+        }
+
+        return true;
+    }
+
+    @Override
+    public String getDataString() {
+        final double data = getData();
         return ""+data;
     }
 
     @Override
-    public Double onCharacteristicChanged(BluetoothGattCharacteristic characteristic){
+    public BluetoothGattExecutor.ServiceAction[] enable(boolean enable) {
+        if (enable) {
+            return new BluetoothGattExecutor.ServiceAction[] {
+                    write(UUID_CONFIG, CALIBRATION_DATA),
+                    read(UUID_CALIBRATION),
+                    write(getConfigUUID(), getConfigValues(enable)),
+                    notify(enable)
+            };
+        } else {
+            return super.enable(enable);
+        }
+    }
+
+    @Override
+    public Double parse(BluetoothGattCharacteristic c) {
         // c holds the calibration coefficients
 
         final Integer t_r;	// Temperature raw value from sensor
@@ -72,8 +97,8 @@ public class TiPressureSensor extends TiSensor<Double> {
         final Double O;	// Interim value in calculation
         final Double p_a; 	// Pressure actual value in unit Pascal.
 
-        t_r = shortSignedAtOffset(characteristic, 0);
-        p_r = shortUnsignedAtOffset(characteristic, 2);
+        t_r = TiSensorUtils.shortSignedAtOffset(c, 0);
+        p_r = TiSensorUtils.shortUnsignedAtOffset(c, 2);
 
         t_a = (100 * (calibration[0] * t_r / pow(2,8) + calibration[1] * pow(2,6))) / pow(2,16);
         S = calibration[2] + calibration[3] * t_r / pow(2,17) + ((calibration[4] * t_r / pow(2,15)) * t_r) / pow(2,19);

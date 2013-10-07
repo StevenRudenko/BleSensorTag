@@ -7,9 +7,7 @@ import android.bluetooth.BluetoothGattCharacteristic;
  */
 public class TiMagnetometerSensor extends TiSensor<float[]> {
 
-    public static final TiMagnetometerSensor INSTANCE = new TiMagnetometerSensor();
-
-    private TiMagnetometerSensor() {
+    TiMagnetometerSensor() {
         super();
     }
 
@@ -35,16 +33,17 @@ public class TiMagnetometerSensor extends TiSensor<float[]> {
     //TODO: add period config option
 
     @Override
-    public String toString(BluetoothGattCharacteristic c) {
-        final float[] data = onCharacteristicChanged(c);
+    public String getDataString() {
+        final float[] data = getData();
         return "x="+data[0]+"\ny="+data[1]+"\nz="+data[2];
     }
 
-    public float[] onCharacteristicChanged(BluetoothGattCharacteristic c) {
+    @Override
+    public float[] parse(BluetoothGattCharacteristic c) {
         // Multiply x and y with -1 so that the values correspond with our pretty pictures in the app.
-        float x = shortSignedAtOffset(c, 0) * (2000f / 65536f) * -1;
-        float y = shortSignedAtOffset(c, 2) * (2000f / 65536f) * -1;
-        float z = shortSignedAtOffset(c, 4) * (2000f / 65536f);
+        float x = TiSensorUtils.shortSignedAtOffset(c, 0) * (2000f / 65536f) * -1;
+        float y = TiSensorUtils.shortSignedAtOffset(c, 2) * (2000f / 65536f) * -1;
+        float z = TiSensorUtils.shortSignedAtOffset(c, 4) * (2000f / 65536f);
 
         return new float[]{x, y, z};
     }

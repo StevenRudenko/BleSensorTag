@@ -16,19 +16,19 @@ import sample.ble.sensortag.R;
 /** Adapter for holding devices found through scanning.
  *  Created by steven on 9/5/13.
  */
-public class LeDeviceListAdapter extends BaseAdapter {
+public class BleDevicesAdapter extends BaseAdapter {
     private final LayoutInflater inflater;
 
     private final ArrayList<BluetoothDevice> leDevices;
     private final HashMap<BluetoothDevice, Integer> rssiMap = new HashMap<BluetoothDevice, Integer>();
 
-    public LeDeviceListAdapter(Context context) {
+    public BleDevicesAdapter(Context context) {
         leDevices = new ArrayList<BluetoothDevice>();
         inflater = LayoutInflater.from(context);
     }
 
     public void addDevice(BluetoothDevice device, int rssi) {
-        if(!leDevices.contains(device)) {
+        if (!leDevices.contains(device)) {
             leDevices.add(device);
         }
         rssiMap.put(device, rssi);

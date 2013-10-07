@@ -7,9 +7,7 @@ import android.bluetooth.BluetoothGattCharacteristic;
  */
 public class TiHumiditySensor extends TiSensor<Float> {
 
-    public static final TiHumiditySensor INSTANCE = new TiHumiditySensor();
-
-    private TiHumiditySensor() {
+    TiHumiditySensor() {
         super();
     }
 
@@ -34,13 +32,14 @@ public class TiHumiditySensor extends TiSensor<Float> {
     }
 
     @Override
-    public String toString(BluetoothGattCharacteristic c) {
-        final float data = onCharacteristicChanged(c);
+    public String getDataString() {
+        final float data = getData();
         return ""+data;
     }
 
-    public Float onCharacteristicChanged(BluetoothGattCharacteristic c) {
-        int a = shortUnsignedAtOffset(c, 2);
+    @Override
+    public Float parse(BluetoothGattCharacteristic c) {
+        int a = TiSensorUtils.shortUnsignedAtOffset(c, 2);
         // bits [1..0] are status bits and need to be cleared according
         // to the userguide, but the iOS code doesn't bother. It should
         // have minimal impact.

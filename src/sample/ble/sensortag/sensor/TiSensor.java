@@ -1,15 +1,13 @@
 package sample.ble.sensortag.sensor;
 
-import static android.bluetooth.BluetoothGattCharacteristic.FORMAT_UINT8;
-import static android.bluetooth.BluetoothGattCharacteristic.FORMAT_SINT8;
-
 import android.bluetooth.BluetoothGatt;
 import android.bluetooth.BluetoothGattCharacteristic;
 import android.bluetooth.BluetoothGattDescriptor;
 import android.bluetooth.BluetoothGattService;
-import android.util.Log;
 
 import java.util.UUID;
+
+import sample.ble.sensortag.BluetoothGattExecutor;
 
 /**
  * Created by steven on 9/3/13.
@@ -19,17 +17,13 @@ public abstract class TiSensor<T> {
 
     private static String CHARACTERISTIC_CONFIG = "00002902-0000-1000-8000-00805f9b34fb";
 
-    public enum ExecuteAction {
-        TURN_ON,
-        TUNN_OFF,
-        BEGIN_NOTIFY,
-        END_NOTIFY
-    }
+    private T data;
 
     protected TiSensor() {
     }
 
     public abstract String getName();
+
     public String getCharacteristicName(String uuid) {
         if (getDataUUID().equals(uuid))
             return getName() + " Data";
@@ -42,111 +36,90 @@ public abstract class TiSensor<T> {
     public abstract String getDataUUID();
     public abstract String getConfigUUID();
 
+    public boolean isConfigUUID(String uuid) {
+        return false;
+    }
+
+    public T getData() {
+        return data;
+    }
+
+    public abstract String getDataString();
+
+    public void onCharacteristicChanged(BluetoothGattCharacteristic c) {
+        data = parse(c);
+    }
+
+    public boolean onCharacteristicRead(BluetoothGattCharacteristic c) {
+        return false;
+    }
+
     protected byte[] getConfigValues(boolean enable) {
         return new byte[] { (byte)(enable ? 1 : 0) };
     }
 
-    public T onCharacteristicChanged(byte[] value) {
-        final BluetoothGattCharacteristic dumb = new BluetoothGattCharacteristic(
-                UUID.randomUUID(),
-                BluetoothGattCharacteristic.PROPERTY_READ,
-                BluetoothGattCharacteristic.PERMISSION_READ);
-        dumb.setValue(value);
+    protected abstract T parse(BluetoothGattCharacteristic c);
 
-        return onCharacteristicChanged(dumb);
+    public BluetoothGattExecutor.ServiceAction[] enable(final boolean enable) {
+        return new BluetoothGattExecutor.ServiceAction[] {
+                write(getConfigUUID(), getConfigValues(enable)),
+                notify(enable)
+        };
     }
 
-    public abstract T onCharacteristicChanged(BluetoothGattCharacteristic c);
-
-    public abstract String toString(BluetoothGattCharacteristic c);
-
-    public boolean isTurnable() {
-        return true;
+    public BluetoothGattExecutor.ServiceAction update() {
+        return BluetoothGattExecutor.ServiceAction.NULL;
     }
 
-    public boolean isAccessable() {
-        return true;
+    public BluetoothGattExecutor.ServiceAction read(final String uuid) {
+        return new BluetoothGattExecutor.ServiceAction() {
+            @Override
+            public boolean execute(BluetoothGatt bluetoothGatt) {
+                final BluetoothGattCharacteristic characteristic = getCharacteristic(bluetoothGatt, uuid);
+                bluetoothGatt.readCharacteristic(characteristic);
+                return false;
+            }
+        };
     }
 
-    public void execute(BluetoothGatt bluetoothGatt, ExecuteAction action) {
-        switch (action) {
-            case TURN_ON:
-                enable(bluetoothGatt, true);
-                break;
-            case TUNN_OFF:
-                enable(bluetoothGatt, false);
-                break;
-            case BEGIN_NOTIFY:
-                notify(bluetoothGatt, true);
-                break;
-            case END_NOTIFY:
-                notify(bluetoothGatt, false);
-                break;
-        }
+    public BluetoothGattExecutor.ServiceAction write(final String uuid, final byte[] value) {
+        return new BluetoothGattExecutor.ServiceAction() {
+            @Override
+            public boolean execute(BluetoothGatt bluetoothGatt) {
+                final BluetoothGattCharacteristic characteristic = getCharacteristic(bluetoothGatt, uuid);
+                characteristic.setValue(value);
+                bluetoothGatt.writeCharacteristic(characteristic);
+                return false;
+            }
+        };
     }
 
-    /**
-     * NB: the config value is different for the Gyroscope
-     * @param bluetoothGatt
-     * @param enable
-     */
-    protected void enable(BluetoothGatt bluetoothGatt, boolean enable) {
+    public BluetoothGattExecutor.ServiceAction notify(final boolean start) {
+        return new BluetoothGattExecutor.ServiceAction() {
+            @Override
+            public boolean execute(BluetoothGatt bluetoothGatt) {
+                final UUID CCC = UUID.fromString(CHARACTERISTIC_CONFIG);
+
+                final BluetoothGattCharacteristic dataCharacteristic = getCharacteristic(bluetoothGatt, getDataUUID());
+                final BluetoothGattDescriptor config = dataCharacteristic.getDescriptor(CCC);
+                if (config == null)
+                    return true;
+
+                // enable/disable locally
+                bluetoothGatt.setCharacteristicNotification(dataCharacteristic, start);
+                // enable/disable remotely
+                config.setValue(start ? BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE : BluetoothGattDescriptor.DISABLE_NOTIFICATION_VALUE);
+                bluetoothGatt.writeDescriptor(config);
+                return false;
+            }
+        };
+    }
+
+    private BluetoothGattCharacteristic getCharacteristic(BluetoothGatt bluetoothGatt, String uuid) {
         final UUID serviceUuid = UUID.fromString(getServiceUUID());
-        final UUID configUuid = UUID.fromString(getConfigUUID());
+        final UUID characteristicUuid = UUID.fromString(uuid);
 
         final BluetoothGattService service = bluetoothGatt.getService(serviceUuid);
-        final BluetoothGattCharacteristic config = service.getCharacteristic(configUuid);
-        config.setValue(getConfigValues(enable));
-        bluetoothGatt.writeCharacteristic(config);
+        return service.getCharacteristic(characteristicUuid);
     }
-
-    protected void notify(BluetoothGatt bluetoothGatt, boolean start) {
-        final UUID serviceUuid = UUID.fromString(getServiceUUID());
-        final UUID dataUuid = UUID.fromString(getDataUUID());
-        final UUID CCC = UUID.fromString(CHARACTERISTIC_CONFIG);
-
-        final BluetoothGattService service = bluetoothGatt.getService(serviceUuid);
-        final BluetoothGattCharacteristic dataCharacteristic = service.getCharacteristic(dataUuid);
-
-        final BluetoothGattDescriptor config = dataCharacteristic.getDescriptor(CCC);
-        if (config == null)
-            return;
-        // enable/disable locally
-        bluetoothGatt.setCharacteristicNotification(dataCharacteristic, start);
-        // enable/disable remotely
-        config.setValue(start ? BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE : BluetoothGattDescriptor.DISABLE_NOTIFICATION_VALUE);
-        bluetoothGatt.writeDescriptor(config);
-    }
-
-    /**
-     * Gyroscope, Magnetometer, Barometer, IR temperature
-     * all store 16 bit two's complement values in the awkward format
-     * LSB MSB, which cannot be directly parsed as getIntValue(FORMAT_SINT16, offset)
-     * because the bytes are stored in the "wrong" direction.
-     *
-     * This function extracts these 16 bit two's complement values.
-     * */
-    protected static Integer shortSignedAtOffset(BluetoothGattCharacteristic c, int offset) {
-        Integer lowerByte = c.getIntValue(FORMAT_UINT8, offset);
-        if (lowerByte == null)
-            return 0;
-        Integer upperByte = c.getIntValue(FORMAT_SINT8, offset + 1); // Note: interpret MSB as signed.
-        if (upperByte == null)
-            return 0;
-
-        return (upperByte << 8) + lowerByte;
-    }
-
-    protected static Integer shortUnsignedAtOffset(BluetoothGattCharacteristic c, int offset) {
-        Integer lowerByte = c.getIntValue(FORMAT_UINT8, offset);
-        if (lowerByte == null)
-            return 0;
-        Integer upperByte = c.getIntValue(FORMAT_UINT8, offset + 1); // Note: interpret MSB as unsigned.
-        if (upperByte == null)
-            return 0;
-
-        return (upperByte << 8) + lowerByte;
-    }
-
-
 }

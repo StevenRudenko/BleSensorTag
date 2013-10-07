@@ -10,14 +10,23 @@ public class TiSensors {
     private static HashMap<String, TiSensor<?>> SENSORS = new HashMap<String, TiSensor<?>>();
 
     static {
-        SENSORS.put(TiAccelerometerSensor.INSTANCE.getServiceUUID(), TiAccelerometerSensor.INSTANCE);
-        SENSORS.put(TiGyroscopeSensor.INSTANCE.getServiceUUID(), TiGyroscopeSensor.INSTANCE);
-        SENSORS.put(TiHumiditySensor.INSTANCE.getServiceUUID(), TiHumiditySensor.INSTANCE);
-        SENSORS.put(TiKeysSensor.INSTANCE.getServiceUUID(), TiKeysSensor.INSTANCE);
-        SENSORS.put(TiMagnetometerSensor.INSTANCE.getServiceUUID(), TiMagnetometerSensor.INSTANCE);
-        SENSORS.put(TiPressureSensor.INSTANCE.getServiceUUID(), TiPressureSensor.INSTANCE);
-        SENSORS.put(TiTemperatureSensor.INSTANCE.getServiceUUID(), TiTemperatureSensor.INSTANCE);
-        SENSORS.put(TiTestSensor.INSTANCE.getServiceUUID(), TiTestSensor.INSTANCE);
+        final TiAccelerometerSensor accelerometerSensor = new TiAccelerometerSensor();
+        final TiGyroscopeSensor gyroscopeSensor = new TiGyroscopeSensor();
+        final TiHumiditySensor humiditySensor = new TiHumiditySensor();
+        final TiKeysSensor keysSensor = new TiKeysSensor();
+        final TiMagnetometerSensor magnetometerSensor = new TiMagnetometerSensor();
+        final TiPressureSensor pressureSensor = new TiPressureSensor();
+        final TiTemperatureSensor temperatureSensor = new TiTemperatureSensor();
+        final TiTestSensor testSensor = new TiTestSensor();
+
+        SENSORS.put(accelerometerSensor.getServiceUUID(), accelerometerSensor);
+        SENSORS.put(gyroscopeSensor.getServiceUUID(), gyroscopeSensor);
+        SENSORS.put(humiditySensor.getServiceUUID(), humiditySensor);
+        SENSORS.put(keysSensor.getServiceUUID(), keysSensor);
+        SENSORS.put(magnetometerSensor.getServiceUUID(), magnetometerSensor);
+        SENSORS.put(pressureSensor.getServiceUUID(), pressureSensor);
+        SENSORS.put(temperatureSensor.getServiceUUID(), temperatureSensor);
+        SENSORS.put(testSensor.getServiceUUID(), testSensor);
     }
 
     public static TiSensor<?> getSensor(String uuid) {

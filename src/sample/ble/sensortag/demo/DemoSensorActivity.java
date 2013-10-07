@@ -12,10 +12,9 @@ import android.os.IBinder;
 import android.util.Log;
 import android.view.MenuItem;
 
-import sample.ble.sensortag.R;
 import sample.ble.sensortag.sensor.TiSensor;
 import sample.ble.sensortag.sensor.TiSensors;
-import sample.ble.sensortag.service.BluetoothLeService;
+import sample.ble.sensortag.BleService;
 
 /**
  * Created by steven on 9/5/13.
@@ -26,7 +25,7 @@ public abstract class DemoSensorActivity extends Activity {
     public static final String EXTRAS_DEVICE_ADDRESS = "DEVICE_ADDRESS";
     public static final String EXTRAS_SENSOR_UUID = "SERVICE_UUID";
 
-    private BluetoothLeService bluetoothLeService;
+    private BleService bleService;
     private String serviceUuid;
     private String deviceAddress;
 
@@ -40,20 +39,16 @@ public abstract class DemoSensorActivity extends Activity {
         @Override
         public void onReceive(Context context, Intent intent) {
             final String action = intent.getAction();
-            if (BluetoothLeService.ACTION_GATT_DISCONNECTED.equals(action)) {
+            if (BleService.ACTION_GATT_DISCONNECTED.equals(action)) {
                 //TODO: show toast
                 finish();
-            } else if (BluetoothLeService.ACTION_GATT_SERVICES_DISCOVERED.equals(action)) {
+            } else if (BleService.ACTION_GATT_SERVICES_DISCOVERED.equals(action)) {
                 final TiSensor<?> sensor = TiSensors.getSensor(serviceUuid);
-                bluetoothLeService.setCharacteristicNotification(sensor, true);
-            } else if (BluetoothLeService.ACTION_DATA_AVAILABLE.equals(action)) {
-                final byte[] data = intent.getByteArrayExtra(BluetoothLeService.EXTRA_DATA);
-                if (data == null || data.length == 0)
-                    return;
-
+                bleService.enableSensor(sensor, true);
+            } else if (BleService.ACTION_DATA_AVAILABLE.equals(action)) {
                 final TiSensor<?> sensor = TiSensors.getSensor(serviceUuid);
-                final String text = intent.getStringExtra(BluetoothLeService.EXTRA_TEXT);
-                onDataRecieved(sensor, data, text);
+                final String text = intent.getStringExtra(BleService.EXTRA_TEXT);
+                onDataRecieved(sensor, text);
             }
         }
     };
@@ -62,24 +57,24 @@ public abstract class DemoSensorActivity extends Activity {
     private final ServiceConnection serviceConnection = new ServiceConnection() {
         @Override
         public void onServiceConnected(ComponentName componentName, IBinder service) {
-            bluetoothLeService = ((BluetoothLeService.LocalBinder) service).getService();
-            if (!bluetoothLeService.initialize()) {
+            bleService = ((BleService.LocalBinder) service).getService();
+            if (!bleService.initialize()) {
                 Log.e(TAG, "Unable to initialize Bluetooth");
                 finish();
             }
             // Automatically connects to the device upon successful start-up initialization.
-            bluetoothLeService.connect(deviceAddress);
+            bleService.connect(deviceAddress);
         }
 
         @Override
         public void onServiceDisconnected(ComponentName componentName) {
-            bluetoothLeService = null;
+            bleService = null;
             //TODO: show toast
             finish();
         }
     };
 
-    public abstract void onDataRecieved(TiSensor<?> sensor, byte[] data, String text);
+    public abstract void onDataRecieved(TiSensor<?> sensor, String text);
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -91,7 +86,7 @@ public abstract class DemoSensorActivity extends Activity {
 
         getActionBar().setDisplayHomeAsUpEnabled(true);
 
-        final Intent gattServiceIntent = new Intent(this, BluetoothLeService.class);
+        final Intent gattServiceIntent = new Intent(this, BleService.class);
         bindService(gattServiceIntent, serviceConnection, BIND_AUTO_CREATE);
     }
 
@@ -100,8 +95,8 @@ public abstract class DemoSensorActivity extends Activity {
         super.onResume();
 
         registerReceiver(gattUpdateReceiver, makeGattUpdateIntentFilter());
-        if (bluetoothLeService != null) {
-            final boolean result = bluetoothLeService.connect(deviceAddress);
+        if (bleService != null) {
+            final boolean result = bleService.connect(deviceAddress);
             Log.d(TAG, "Connect request result=" + result);
         }
     }
@@ -116,7 +111,7 @@ public abstract class DemoSensorActivity extends Activity {
     protected void onDestroy() {
         super.onDestroy();
         unbindService(serviceConnection);
-        bluetoothLeService = null;
+        bleService = null;
     }
 
     @Override
@@ -131,9 +126,9 @@ public abstract class DemoSensorActivity extends Activity {
 
     private static IntentFilter makeGattUpdateIntentFilter() {
         final IntentFilter intentFilter = new IntentFilter();
-        intentFilter.addAction(BluetoothLeService.ACTION_GATT_SERVICES_DISCOVERED);
-        intentFilter.addAction(BluetoothLeService.ACTION_GATT_DISCONNECTED);
-        intentFilter.addAction(BluetoothLeService.ACTION_DATA_AVAILABLE);
+        intentFilter.addAction(BleService.ACTION_GATT_SERVICES_DISCOVERED);
+        intentFilter.addAction(BleService.ACTION_GATT_DISCONNECTED);
+        intentFilter.addAction(BleService.ACTION_DATA_AVAILABLE);
         return intentFilter;
     }
 }

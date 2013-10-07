@@ -41,10 +41,10 @@ public class DemoGyroscopeSensorActivity extends DemoSensorActivity {
     }
 
     @Override
-    public void onDataRecieved(TiSensor<?> sensor, byte[] data, String text) {
+    public void onDataRecieved(TiSensor<?> sensor, String text) {
         if (sensor instanceof TiGyroscopeSensor) {
-            final TiGyroscopeSensor accSensor = (TiGyroscopeSensor) sensor;
-            float[] values = accSensor.onCharacteristicChanged(data);
+            final TiGyroscopeSensor gyroSensor = (TiGyroscopeSensor) sensor;
+            float[] values = gyroSensor.getData();
             renderer.setRotation(values);
 
             viewText.setText(text);

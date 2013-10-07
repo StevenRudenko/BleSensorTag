@@ -25,32 +25,24 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
-import android.os.Handler;
-import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewGroup;
-import android.widget.BaseAdapter;
 import android.widget.ListView;
-import android.widget.TextView;
 import android.widget.Toast;
 
-import java.util.ArrayList;
-
-import sample.ble.sensortag.adapters.LeDeviceListAdapter;
+import sample.ble.sensortag.adapters.BleDevicesAdapter;
 
 /**
  * Activity for scanning and displaying available Bluetooth LE devices.
  */
 public class DeviceScanActivity extends ListActivity {
-    private LeDeviceListAdapter leDeviceListAdapter;
-    private BluetoothAdapter bluetoothAdapter;
 
     private static final int REQUEST_ENABLE_BT = 1;
-    // Stops scanning after 10 seconds.
     private static final long SCAN_PERIOD = 500;
 
+    private BleDevicesAdapter leDeviceListAdapter;
+    private BluetoothAdapter bluetoothAdapter;
     private Scanner scanner;
 
     @Override
@@ -63,6 +55,7 @@ public class DeviceScanActivity extends ListActivity {
         if (!getPackageManager().hasSystemFeature(PackageManager.FEATURE_BLUETOOTH_LE)) {
             Toast.makeText(this, R.string.ble_not_supported, Toast.LENGTH_SHORT).show();
             finish();
+            return;
         }
 
         // Initializes a Bluetooth adapter.  For API level 18 and above, get a reference to
@@ -126,27 +119,23 @@ public class DeviceScanActivity extends ListActivity {
         // Ensures Bluetooth is enabled on the device.  If Bluetooth is not currently enabled,
         // fire an intent to display a dialog asking the user to grant permission to enable it.
         if (!bluetoothAdapter.isEnabled()) {
-            Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
+            final Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
             startActivityForResult(enableBtIntent, REQUEST_ENABLE_BT);
             return;
         }
 
-        // Initializes list view adapter.
-        leDeviceListAdapter = new LeDeviceListAdapter(getBaseContext());
-        setListAdapter(leDeviceListAdapter);
-
-        scanner = new Scanner(bluetoothAdapter, mLeScanCallback);
-        scanner.startScanning();
-
-        invalidateOptionsMenu();
+        init();
     }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         // User chose not to enable Bluetooth.
-        if (requestCode == REQUEST_ENABLE_BT && resultCode == Activity.RESULT_CANCELED) {
-            finish();
-            return;
+        if (requestCode == REQUEST_ENABLE_BT) {
+            if (resultCode == Activity.RESULT_CANCELED) {
+                finish();
+            } else {
+                init();
+            }
         }
         super.onActivityResult(requestCode, resultCode, data);
     }
@@ -159,18 +148,32 @@ public class DeviceScanActivity extends ListActivity {
             scanner.stopScanning();
             scanner = null;
         }
-
-        leDeviceListAdapter.clear();
     }
 
     @Override
     protected void onListItemClick(ListView l, View v, int position, long id) {
         final BluetoothDevice device = leDeviceListAdapter.getDevice(position);
-        if (device == null) return;
-        final Intent intent = new Intent(this, DeviceControlActivity.class);
-        intent.putExtra(DeviceControlActivity.EXTRAS_DEVICE_NAME, device.getName());
-        intent.putExtra(DeviceControlActivity.EXTRAS_DEVICE_ADDRESS, device.getAddress());
+        if (device == null)
+            return;
+
+        final Intent intent = new Intent(this, DeviceServicesActivity.class);
+        intent.putExtra(DeviceServicesActivity.EXTRAS_DEVICE_NAME, device.getName());
+        intent.putExtra(DeviceServicesActivity.EXTRAS_DEVICE_ADDRESS, device.getAddress());
         startActivity(intent);
+    }
+
+    private void init() {
+        if (leDeviceListAdapter == null) {
+            leDeviceListAdapter = new BleDevicesAdapter(getBaseContext());
+            setListAdapter(leDeviceListAdapter);
+        }
+
+        if (scanner == null) {
+            scanner = new Scanner(bluetoothAdapter, mLeScanCallback);
+            scanner.startScanning();
+        }
+
+        invalidateOptionsMenu();
     }
 
     // Device scan callback.

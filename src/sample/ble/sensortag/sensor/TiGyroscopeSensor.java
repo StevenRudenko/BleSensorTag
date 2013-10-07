@@ -7,9 +7,7 @@ import android.bluetooth.BluetoothGattCharacteristic;
  */
 public class TiGyroscopeSensor extends TiSensor<float[]> {
 
-    public static final TiGyroscopeSensor INSTANCE = new TiGyroscopeSensor();
-
-    private TiGyroscopeSensor() {
+    TiGyroscopeSensor() {
         super();
     }
 
@@ -40,16 +38,17 @@ public class TiGyroscopeSensor extends TiSensor<float[]> {
     }
 
     @Override
-    public String toString(BluetoothGattCharacteristic c) {
-        final float[] data = onCharacteristicChanged(c);
+    public String getDataString() {
+        final float[] data = getData();
         return "x="+data[0]+"\ny="+data[1]+"\nz="+data[2];
     }
 
-    public float[] onCharacteristicChanged(BluetoothGattCharacteristic c) {
+    @Override
+    public float[] parse(BluetoothGattCharacteristic c) {
         // NB: x,y,z has a weird order.
-        float y = shortSignedAtOffset(c, 0) * (500f / 65536f) * -1;
-        float x = shortSignedAtOffset(c, 2) * (500f / 65536f);
-        float z = shortSignedAtOffset(c, 4) * (500f / 65536f);
+        float y = TiSensorUtils.shortSignedAtOffset(c, 0) * (500f / 65536f) * -1;
+        float x = TiSensorUtils.shortSignedAtOffset(c, 2) * (500f / 65536f);
+        float z = TiSensorUtils.shortSignedAtOffset(c, 4) * (500f / 65536f);
 
         return new float[]{x, y, z};
     }
