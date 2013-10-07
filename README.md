@@ -17,15 +17,16 @@ There were SensorTag UUIDs linked in application to get information from BLE dev
     <li>Gyroscope</li>
     <li>Magnetometer</li>
     <li>Humidity Sensor (doesn't work for SensorTag with FW v1.01)</li>
-    <li>Pressure Sensor (not implemented yet)</li>
+    <li>Pressure Sensor</li>
     <ul/>
   </td>
 </tr>
 </table>
 
-```java
-//Video will be added in near furture.
-```
+
+## Troubleshooting
+If you have problems with TI Sensor Tag services detection or any sensor doesn't work you should try update [firmware of SensorTag](http://processors.wiki.ti.com/index.php/SensorTag_Firmware)
+
 
 -------------------------------------------------------------------------------
 
