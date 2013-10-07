@@ -19,6 +19,7 @@ import sample.ble.sensortag.info.TiInfoService;
 import sample.ble.sensortag.info.TiInfoServices;
 import sample.ble.sensortag.sensor.TiAccelerometerSensor;
 import sample.ble.sensortag.sensor.TiGyroscopeSensor;
+import sample.ble.sensortag.sensor.TiPeriodicalSensor;
 import sample.ble.sensortag.sensor.TiSensor;
 import sample.ble.sensortag.sensor.TiSensors;
 
@@ -168,9 +169,9 @@ public class TiServicesAdapter extends BaseExpandableListAdapter {
                     if (sensor == null)
                         return;
 
-                    if (sensor instanceof TiAccelerometerSensor) {
-                        final TiAccelerometerSensor accelerometerSensor = (TiAccelerometerSensor) sensor;
-                        accelerometerSensor.setPeriod(progress + TiAccelerometerSensor.PERIOD_MIN);
+                    if (sensor instanceof TiPeriodicalSensor) {
+                        final TiPeriodicalSensor periodicalSensor = (TiPeriodicalSensor) sensor;
+                        periodicalSensor.setPeriod(progress + periodicalSensor.getMinPeriod());
 
                         serviceListener.onServiceUpdated(holder.service);
                     }
@@ -206,11 +207,11 @@ public class TiServicesAdapter extends BaseExpandableListAdapter {
             name = sensor.getCharacteristicName(uuid);
 
             if ( sensor.isConfigUUID(uuid) ) {
-                if ( sensor instanceof TiAccelerometerSensor ) {
-                    final TiAccelerometerSensor accelerometerSensor = (TiAccelerometerSensor) sensor;
+                if ( sensor instanceof TiPeriodicalSensor) {
+                    final TiPeriodicalSensor periodicalSensor = (TiPeriodicalSensor) sensor;
 
-                    final int max = TiAccelerometerSensor.PERIOD_MAX - TiAccelerometerSensor.PERIOD_MIN;
-                    final int value = accelerometerSensor.getPeriod() - TiAccelerometerSensor.PERIOD_MIN;
+                    final int max = periodicalSensor.getMaxPeriod() - periodicalSensor.getMinPeriod();
+                    final int value = periodicalSensor.getPeriod() - periodicalSensor.getMinPeriod();
                     holder.seek.setMax(max);
                     holder.seek.setProgress(value);
 

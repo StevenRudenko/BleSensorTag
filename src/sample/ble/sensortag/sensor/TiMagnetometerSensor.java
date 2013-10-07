@@ -2,10 +2,22 @@ package sample.ble.sensortag.sensor;
 
 import android.bluetooth.BluetoothGattCharacteristic;
 
+import sample.ble.sensortag.BluetoothGattExecutor;
+
 /**
  * Created by steven on 9/3/13.
  */
-public class TiMagnetometerSensor extends TiSensor<float[]> {
+public class TiMagnetometerSensor extends TiSensor<float[]>implements TiPeriodicalSensor {
+
+    private static final String UUID_SERVICE = "f000aa30-0451-4000-b000-000000000000";
+    private static final String UUID_DATA = "f000aa31-0451-4000-b000-000000000000";
+    private static final String UUID_CONFIG = "f000aa32-0451-4000-b000-000000000000";
+    private static final String UUID_PERIOD = "f000aa33-0451-4000-b000-000000000000";
+
+    private static final int PERIOD_MIN = 10;
+    private static final int PERIOD_MAX = 255;
+
+    private int period = 200;
 
     TiMagnetometerSensor() {
         super();
@@ -18,24 +30,62 @@ public class TiMagnetometerSensor extends TiSensor<float[]> {
 
     @Override
     public String getServiceUUID() {
-        return "f000aa30-0451-4000-b000-000000000000";
+        return UUID_SERVICE;
     }
 
     @Override
     public String getDataUUID() {
-        return "f000aa31-0451-4000-b000-000000000000";
+        return UUID_DATA;
     }
 
     @Override
     public String getConfigUUID() {
-        return "f000aa32-0451-4000-b000-000000000000";
+        return UUID_CONFIG;
     }
-    //TODO: add period config option
+
+    @Override
+    public boolean isConfigUUID(String uuid) {
+        if (uuid.equals(UUID_PERIOD))
+            return true;
+        return super.isConfigUUID(uuid);
+    }
+
+    @Override
+    public String getCharacteristicName(String uuid) {
+        if (UUID_PERIOD.equals(uuid))
+            return getName() + " Period";
+        return super.getCharacteristicName(uuid);
+    }
 
     @Override
     public String getDataString() {
         final float[] data = getData();
         return "x="+data[0]+"\ny="+data[1]+"\nz="+data[2];
+    }
+
+    @Override
+    public int getMinPeriod() {
+        return PERIOD_MIN;
+    }
+
+    @Override
+    public int getMaxPeriod() {
+        return PERIOD_MAX;
+    }
+
+    @Override
+    public void setPeriod(int period) {
+        this.period = period;
+    }
+
+    @Override
+    public int getPeriod() {
+        return period;
+    }
+
+    @Override
+    public BluetoothGattExecutor.ServiceAction update() {
+        return write(UUID_PERIOD, new byte[]{(byte) period});
     }
 
     @Override

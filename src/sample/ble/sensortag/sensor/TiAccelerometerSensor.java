@@ -9,15 +9,15 @@ import static android.bluetooth.BluetoothGattCharacteristic.FORMAT_SINT8;
 /**
  * Created by steven on 9/3/13.
  */
-public class TiAccelerometerSensor extends TiSensor<float[]> {
+public class TiAccelerometerSensor extends TiSensor<float[]> implements TiPeriodicalSensor {
 
     private static final String UUID_SERVICE = "f000aa10-0451-4000-b000-000000000000";
     private static final String UUID_DATA = "f000aa11-0451-4000-b000-000000000000";
     private static final String UUID_CONFIG = "f000aa12-0451-4000-b000-000000000000";
     private static final String UUID_PERIOD = "f000aa13-0451-4000-b000-000000000000";
 
-    public static final int PERIOD_MIN = 10;
-    public static final int PERIOD_MAX = 255;
+    private static final int PERIOD_MIN = 10;
+    private static final int PERIOD_MAX = 255;
 
     private int period = 100;
 
@@ -65,20 +65,24 @@ public class TiAccelerometerSensor extends TiSensor<float[]> {
         return "x="+data[0]+"\ny="+data[1]+"\nz="+data[2];
     }
 
+    @Override
+    public int getMinPeriod() {
+        return PERIOD_MIN;
+    }
+
+    @Override
+    public int getMaxPeriod() {
+        return PERIOD_MAX;
+    }
+
+    @Override
     public void setPeriod(int period) {
         this.period = period;
     }
 
+    @Override
     public int getPeriod() {
         return period;
-    }
-
-    @Override
-    public BluetoothGattExecutor.ServiceAction[] enable(boolean enable) {
-        return new BluetoothGattExecutor.ServiceAction[] {
-                write(getConfigUUID(), getConfigValues(enable)),
-                notify(enable)
-        };
     }
 
     @Override
