@@ -15,6 +15,8 @@ import java.util.HashMap;
 import java.util.List;
 
 import sample.ble.sensortag.R;
+import sample.ble.sensortag.info.TiInfoService;
+import sample.ble.sensortag.info.TiInfoServices;
 import sample.ble.sensortag.sensor.TiAccelerometerSensor;
 import sample.ble.sensortag.sensor.TiGyroscopeSensor;
 import sample.ble.sensortag.sensor.TiSensor;
@@ -122,7 +124,16 @@ public class TiServicesAdapter extends BaseExpandableListAdapter {
 
         final String uuid = item.getUuid().toString();
         final TiSensor<?> sensor = TiSensors.getSensor(uuid);
-        final String serviceName = sensor != null ? sensor.getName() : "Unknown";
+        final TiInfoService infoService = TiInfoServices.getService(uuid);
+
+        final String serviceName;
+
+        if (sensor != null)
+            serviceName = sensor.getName();
+        else if ( infoService != null )
+            serviceName = infoService.getName();
+        else
+            serviceName = "Unknown";
 
         holder.name.setText(serviceName);
         holder.uuid.setText(uuid);
@@ -180,13 +191,16 @@ public class TiServicesAdapter extends BaseExpandableListAdapter {
         }
 
         final BluetoothGattCharacteristic item = getChild(groupPosition, childPosition);
-        final TiSensor<?> sensor = TiSensors.getSensor(item.getService().getUuid().toString());
 
         final String uuid = item.getUuid().toString();
         final String name;
         final String modes = getModeString(item.getProperties());
 
         holder.service = item.getService();
+
+        final String serviceUUID = item.getService().getUuid().toString();
+        final TiSensor<?> sensor = TiSensors.getSensor(serviceUUID);
+        final TiInfoService infoService = TiInfoServices.getService(serviceUUID);
 
         if ( sensor != null ) {
             name = sensor.getCharacteristicName(uuid);
@@ -207,6 +221,11 @@ public class TiServicesAdapter extends BaseExpandableListAdapter {
                 holder.uuid.setVisibility(View.VISIBLE);
                 holder.seek.setVisibility(View.GONE);
             }
+        } else if (infoService != null) {
+            name = infoService.getCharacteristicName(uuid);
+
+            holder.uuid.setVisibility(View.VISIBLE);
+            holder.seek.setVisibility(View.GONE);
         } else {
             name = "Unknown";
 
