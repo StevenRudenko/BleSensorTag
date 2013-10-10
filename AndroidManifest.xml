@@ -16,8 +16,8 @@ limitations under the License.
 -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
           package="sample.ble.sensortag"
-          android:versionCode="4"
-          android:versionName="0.4b">
+          android:versionCode="5"
+          android:versionName="1.0">
     <uses-sdk android:minSdkVersion="18"
               android:targetSdkVersion="18"/>
     <!-- Declare this required feature if you want to make the app available to BLE-capable
