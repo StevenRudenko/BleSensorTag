@@ -1,7 +1,7 @@
 BLE TI SensorTag
 ==============
 
-Sample project for Bluetooth Low Energy (BLE) usage on Android. There was [TI SensorTag][1] module used for demonstration.
+**This is not an official application for TI SensorTag.** It is a sample project for Bluetooth Low Energy (BLE) usage on Android. There was [TI SensorTag][1] module used for demonstration.
 
 There were SensorTag UUIDs linked in application to get information from BLE device sensors.
 <table>
