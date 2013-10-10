@@ -25,7 +25,7 @@ There were SensorTag UUIDs linked in application to get information from BLE dev
 
 
 ## Troubleshooting
-If you have problems with TI Sensor Tag services detection or any sensor doesn't work you should try update [firmware of SensorTag](http://processors.wiki.ti.com/index.php/SensorTag_Firmware)
+If you have problems with TI Sensor Tag services detection or any sensor doesn't work you should try to update [firmware of SensorTag](http://processors.wiki.ti.com/index.php/SensorTag_Firmware)
 
 
 -------------------------------------------------------------------------------
