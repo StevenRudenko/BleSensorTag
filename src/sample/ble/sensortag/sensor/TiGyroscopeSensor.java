@@ -29,17 +29,17 @@ public class TiGyroscopeSensor extends TiSensor<float[]> implements TiPeriodical
 
     @Override
     public String getServiceUUID() {
-        return "f000aa50-0451-4000-b000-000000000000";
+        return UUID_SERVICE;
     }
 
     @Override
     public String getDataUUID() {
-        return "f000aa51-0451-4000-b000-000000000000";
+        return UUID_DATA;
     }
 
     @Override
     public String getConfigUUID() {
-        return "f000aa52-0451-4000-b000-000000000000";
+        return UUID_CONFIG;
     }
     //TODO: there is period service
 
@@ -65,7 +65,7 @@ public class TiGyroscopeSensor extends TiSensor<float[]> implements TiPeriodical
     @Override
     public String getDataString() {
         final float[] data = getData();
-        return "x="+data[0]+"\ny="+data[1]+"\nz="+data[2];
+        return "x="+data[0]+"\ty="+data[1]+"\tz="+data[2];
     }
 
     @Override

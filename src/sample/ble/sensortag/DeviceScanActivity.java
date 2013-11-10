@@ -1,6 +1,7 @@
 package sample.ble.sensortag;
 
 import android.app.Activity;
+import android.app.Fragment;
 import android.app.ListActivity;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
@@ -11,6 +12,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.ListView;
 import sample.ble.sensortag.adapters.BleDevicesAdapter;
+import sample.ble.sensortag.demo.LocalSensorFusionActivity;
 import sample.ble.sensortag.dialogs.EnableBluetoothDialog;
 import sample.ble.sensortag.dialogs.ErrorDialog;
 import sample.ble.sensortag.utils.BleDevicesScanner;
@@ -33,6 +35,7 @@ public class DeviceScanActivity extends ListActivity
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setTitle(R.string.title_devices);
 
         final int bleStatus = BleUtils.getBleStatus(getBaseContext());
         switch (bleStatus) {
@@ -87,6 +90,10 @@ public class DeviceScanActivity extends ListActivity
                     scanner.stop();
                 invalidateOptionsMenu();
                 break;
+            case R.id.menu_demo:
+                final Intent demoIntent = new Intent(getBaseContext(), LocalSensorFusionActivity.class);
+                startActivity(demoIntent);
+                break;
         }
         return true;
     }
@@ -95,11 +102,15 @@ public class DeviceScanActivity extends ListActivity
     protected void onResume() {
         super.onResume();
 
+        if (bluetoothAdapter == null)
+            return;
+
         // Ensures Bluetooth is enabled on the device.  If Bluetooth is not currently enabled,
         // fire an intent to display a dialog asking the user to grant permission to enable it.
         if (!bluetoothAdapter.isEnabled()) {
-            final Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
-            startActivityForResult(enableBtIntent, REQUEST_ENABLE_BT);
+            final Fragment f = getFragmentManager().findFragmentByTag(EnableBluetoothDialog.TAG);
+            if (f == null)
+                new EnableBluetoothDialog().show(getFragmentManager(), EnableBluetoothDialog.TAG);
             return;
         }
 

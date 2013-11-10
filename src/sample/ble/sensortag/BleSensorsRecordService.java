@@ -67,6 +67,8 @@ public class BleSensorsRecordService extends BleService implements BleServiceLis
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
+        if (scanner == null)
+            return super.onStartCommand(intent, flags, startId);
         Log.d(TAG, "Service started");
         scanner.start();
         return super.onStartCommand(intent, flags, startId);

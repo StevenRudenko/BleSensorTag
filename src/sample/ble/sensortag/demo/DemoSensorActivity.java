@@ -1,6 +1,5 @@
 package sample.ble.sensortag.demo;
 
-import android.app.Activity;
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
@@ -12,22 +11,23 @@ import android.os.IBinder;
 import android.util.Log;
 import android.view.MenuItem;
 
+import sample.ble.sensortag.BleService;
+import sample.ble.sensortag.gl.GlActivity;
 import sample.ble.sensortag.sensor.TiSensor;
 import sample.ble.sensortag.sensor.TiSensors;
-import sample.ble.sensortag.BleService;
 
 /**
  * Created by steven on 9/5/13.
  */
-public abstract class DemoSensorActivity extends Activity {
+public abstract class DemoSensorActivity extends GlActivity {
     private final static String TAG = DemoSensorActivity.class.getSimpleName();
 
-    public static final String EXTRAS_DEVICE_ADDRESS = "DEVICE_ADDRESS";
-    public static final String EXTRAS_SENSOR_UUID = "SERVICE_UUID";
+    public static final String EXTRAS_DEVICE_ADDRESS = TAG+":DEVICE_ADDRESS";
+    public static final String EXTRAS_SENSOR_UUIDS = TAG+":SERVICE_UUIDS";
 
-    private BleService bleService;
-    private String serviceUuid;
-    private String deviceAddress;
+    protected BleService bleService;
+    protected String[] serviceUuids;
+    protected String deviceAddress;
 
     // Handles various events fired by the Service.
     // ACTION_GATT_CONNECTED: connected to a GATT server.
@@ -43,9 +43,9 @@ public abstract class DemoSensorActivity extends Activity {
                 //TODO: show toast
                 finish();
             } else if (BleService.ACTION_GATT_SERVICES_DISCOVERED.equals(action)) {
-                final TiSensor<?> sensor = TiSensors.getSensor(serviceUuid);
-                bleService.enableSensor(sensor, true);
+                onServicesDiscovered();
             } else if (BleService.ACTION_DATA_AVAILABLE.equals(action)) {
+                final String serviceUuid = intent.getStringExtra(BleService.EXTRA_SERVICE_UUID);
                 final TiSensor<?> sensor = TiSensors.getSensor(serviceUuid);
                 final String text = intent.getStringExtra(BleService.EXTRA_TEXT);
                 onDataRecieved(sensor, text);
@@ -76,13 +76,20 @@ public abstract class DemoSensorActivity extends Activity {
 
     public abstract void onDataRecieved(TiSensor<?> sensor, String text);
 
+    protected void onServicesDiscovered() {
+        for (String uuid : serviceUuids) {
+            final TiSensor<?> sensor = TiSensors.getSensor(uuid);
+            bleService.enableSensor(sensor, true);
+        }
+    }
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         final Intent intent = getIntent();
         deviceAddress = intent.getStringExtra(EXTRAS_DEVICE_ADDRESS);
-        serviceUuid = intent.getStringExtra(EXTRAS_SENSOR_UUID);
+        serviceUuids = intent.getStringArrayExtra(EXTRAS_SENSOR_UUIDS);
 
         getActionBar().setDisplayHomeAsUpEnabled(true);
 

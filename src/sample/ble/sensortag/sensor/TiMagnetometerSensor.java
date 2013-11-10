@@ -9,7 +9,7 @@ import sample.ble.sensortag.BluetoothGattExecutor;
  */
 public class TiMagnetometerSensor extends TiSensor<float[]>implements TiPeriodicalSensor {
 
-    private static final String UUID_SERVICE = "f000aa30-0451-4000-b000-000000000000";
+    public static final String UUID_SERVICE = "f000aa30-0451-4000-b000-000000000000";
     private static final String UUID_DATA = "f000aa31-0451-4000-b000-000000000000";
     private static final String UUID_CONFIG = "f000aa32-0451-4000-b000-000000000000";
     private static final String UUID_PERIOD = "f000aa33-0451-4000-b000-000000000000";
@@ -60,7 +60,7 @@ public class TiMagnetometerSensor extends TiSensor<float[]>implements TiPeriodic
     @Override
     public String getDataString() {
         final float[] data = getData();
-        return "x="+data[0]+"\ny="+data[1]+"\nz="+data[2];
+        return "x="+data[0]+"\ty="+data[1]+"\tz="+data[2];
     }
 
     @Override

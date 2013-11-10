@@ -62,7 +62,7 @@ public class TiAccelerometerSensor extends TiSensor<float[]> implements TiPeriod
     @Override
     public String getDataString() {
         final float[] data = getData();
-        return "x="+data[0]+"\ny="+data[1]+"\nz="+data[2];
+        return "x="+data[0]+"\ty="+data[1]+"\tz="+data[2];
     }
 
     @Override
@@ -117,7 +117,7 @@ public class TiAccelerometerSensor extends TiSensor<float[]> implements TiPeriod
 
         Integer x = c.getIntValue(FORMAT_SINT8, 0);
         Integer y = c.getIntValue(FORMAT_SINT8, 1);
-        Integer z = c.getIntValue(FORMAT_SINT8, 2) * -1;
+        Integer z = -1 * c.getIntValue(FORMAT_SINT8, 2);
 
         double scaledX = x / 64.0;
         double scaledY = y / 64.0;
@@ -125,4 +125,5 @@ public class TiAccelerometerSensor extends TiSensor<float[]> implements TiPeriod
 
         return new float[]{(float)scaledX, (float)scaledY, (float)scaledZ};
     }
+
 }

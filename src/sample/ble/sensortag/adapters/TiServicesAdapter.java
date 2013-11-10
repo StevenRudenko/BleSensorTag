@@ -9,19 +9,16 @@ import android.view.ViewGroup;
 import android.widget.BaseExpandableListAdapter;
 import android.widget.SeekBar;
 import android.widget.TextView;
+import sample.ble.sensortag.R;
+import sample.ble.sensortag.info.TiInfoService;
+import sample.ble.sensortag.info.TiInfoServices;
+import sample.ble.sensortag.sensor.TiPeriodicalSensor;
+import sample.ble.sensortag.sensor.TiSensor;
+import sample.ble.sensortag.sensor.TiSensors;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-
-import sample.ble.sensortag.R;
-import sample.ble.sensortag.info.TiInfoService;
-import sample.ble.sensortag.info.TiInfoServices;
-import sample.ble.sensortag.sensor.TiAccelerometerSensor;
-import sample.ble.sensortag.sensor.TiGyroscopeSensor;
-import sample.ble.sensortag.sensor.TiPeriodicalSensor;
-import sample.ble.sensortag.sensor.TiSensor;
-import sample.ble.sensortag.sensor.TiSensors;
 
 /**
  * Created by steven on 9/5/13.
@@ -247,10 +244,6 @@ public class TiServicesAdapter extends BaseExpandableListAdapter {
     }
 
     private static boolean isDemoable(TiSensor<?> sensor) {
-        if (sensor instanceof TiAccelerometerSensor)
-            return true;
-        if (sensor instanceof TiGyroscopeSensor)
-            return true;
         return false;
     }
 

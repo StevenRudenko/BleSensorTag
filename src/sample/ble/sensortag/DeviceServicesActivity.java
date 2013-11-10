@@ -17,11 +17,11 @@ import android.widget.ExpandableListView;
 import android.widget.SimpleExpandableListAdapter;
 import android.widget.TextView;
 import sample.ble.sensortag.adapters.TiServicesAdapter;
-import sample.ble.sensortag.demo.DemoAccelerometerSensorActivity;
-import sample.ble.sensortag.demo.DemoGyroscopeSensorActivity;
 import sample.ble.sensortag.demo.DemoSensorActivity;
+import sample.ble.sensortag.demo.DemoSensorFusionActivity;
 import sample.ble.sensortag.sensor.TiAccelerometerSensor;
 import sample.ble.sensortag.sensor.TiGyroscopeSensor;
+import sample.ble.sensortag.sensor.TiMagnetometerSensor;
 import sample.ble.sensortag.sensor.TiSensor;
 import sample.ble.sensortag.sensor.TiSensors;
 import sample.ble.sensortag.utils.BleActionsReceiver;
@@ -114,18 +114,15 @@ public class DeviceServicesActivity extends Activity implements BleServiceListen
             if (sensor == null)
                 return;
 
-            final Class<? extends DemoSensorActivity> demoClass;
-            if (sensor instanceof TiAccelerometerSensor)
-                demoClass = DemoAccelerometerSensorActivity.class;
-            else if (sensor instanceof TiGyroscopeSensor)
-                demoClass = DemoGyroscopeSensorActivity.class;
-            else
+            final Class<? extends DemoSensorActivity> demoClass = null;
+            // disable this feature for now
+            if (demoClass == null)
                 return;
 
             final Intent demoIntent = new Intent();
             demoIntent.setClass(DeviceServicesActivity.this, demoClass);
             demoIntent.putExtra(DemoSensorActivity.EXTRAS_DEVICE_ADDRESS, deviceAddress);
-            demoIntent.putExtra(DemoSensorActivity.EXTRAS_SENSOR_UUID, service.getUuid().toString());
+            demoIntent.putExtra(DemoSensorActivity.EXTRAS_SENSOR_UUIDS, new String[] {service.getUuid().toString()});
             startActivity(demoIntent);
         }
 
@@ -223,6 +220,17 @@ public class DeviceServicesActivity extends Activity implements BleServiceListen
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch(item.getItemId()) {
+            case R.id.menu_demo:
+                final Intent demoIntent = new Intent();
+                demoIntent.setClass(DeviceServicesActivity.this, DemoSensorFusionActivity.class);
+                demoIntent.putExtra(DemoSensorActivity.EXTRAS_DEVICE_ADDRESS, deviceAddress);
+                demoIntent.putExtra(DemoSensorActivity.EXTRAS_SENSOR_UUIDS, new String[] {
+                        TiAccelerometerSensor.UUID_SERVICE,
+                        TiMagnetometerSensor.UUID_SERVICE,
+                        TiGyroscopeSensor.UUID_SERVICE
+                });
+                startActivity(demoIntent);
+                break;
             case R.id.menu_connect:
                 bleService.connect(deviceAddress);
                 return true;

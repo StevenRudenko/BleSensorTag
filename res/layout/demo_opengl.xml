@@ -4,7 +4,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
-    <sample.ble.sensortag.demo.DemoGLSurfaceView
+    <sample.ble.sensortag.gl.GLSurfaceView
             android:id="@+id/gl"
             android:layout_width="match_parent"
             android:layout_height="match_parent" />

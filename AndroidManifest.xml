@@ -15,42 +15,49 @@ See the License for the specific language governing permissions and
 limitations under the License.
 -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-          package="sample.ble.sensortag"
-          android:versionCode="5"
-          android:versionName="1.0">
-    <uses-sdk android:minSdkVersion="18"
-              android:targetSdkVersion="18"/>
+    package="sample.ble.sensortag"
+    android:versionCode="6"
+    android:versionName="1.1">
+    <uses-sdk android:minSdkVersion="18" android:targetSdkVersion="18"/>
+
     <!-- Declare this required feature if you want to make the app available to BLE-capable
     devices only.  If you want to make your app available to devices that don't support BLE,
     you should omit this in the manifest.  Instead, determine BLE capability by using
     PackageManager.hasSystemFeature(FEATURE_BLUETOOTH_LE) -->
     <uses-feature android:name="android.hardware.bluetooth_le" android:required="true"/>
 
+    <uses-feature android:glEsVersion="0x00020000" android:required="true" />
+
     <uses-permission android:name="android.permission.BLUETOOTH"/>
     <uses-permission android:name="android.permission.BLUETOOTH_ADMIN"/>
 
     <application android:label="@string/app_name"
-                 android:icon="@drawable/ic_launcher"
-                 android:theme="@android:style/Theme.Holo.Light">
+        android:icon="@drawable/ic_launcher"
+        android:theme="@android:style/Theme.Holo.Light">
         <activity android:name=".DeviceScanActivity"
-                  android:label="@string/title_devices">
+                  android:label="@string/app_name">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
         </activity>
         <activity android:name=".DeviceServicesActivity"/>
-        <activity android:name=".demo.DemoAccelerometerSensorActivity"/>
-        <activity android:name=".demo.DemoGyroscopeSensorActivity"/>
+        <activity android:name=".demo.DemoSensorFusionActivity"
+                  android:hardwareAccelerated="false"/>
+        <activity android:name=".demo.LocalSensorFusionActivity"
+                  android:hardwareAccelerated="false"/>
+
         <service android:name=".BleService"
                  android:enabled="true"/>
         <service android:name=".BleSensorsRecordService"
                  android:enabled="true"
                  android:exported="true"/>
+
         <receiver android:name=".BluetoothStateReciever">
             <intent-filter>
                 <action android:name="android.bluetooth.adapter.action.STATE_CHANGED"/>
             </intent-filter>
         </receiver>
+
     </application>
 </manifest>
