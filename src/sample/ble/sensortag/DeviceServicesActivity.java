@@ -1,19 +1,3 @@
-/*
- * Copyright (C) 2013 The Android Open Source Project
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 package sample.ble.sensortag;
 
 import android.app.Activity;
@@ -21,9 +5,7 @@ import android.bluetooth.BluetoothGattCharacteristic;
 import android.bluetooth.BluetoothGattService;
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
-import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.os.Bundle;
 import android.os.IBinder;
@@ -34,9 +16,6 @@ import android.view.View;
 import android.widget.ExpandableListView;
 import android.widget.SimpleExpandableListAdapter;
 import android.widget.TextView;
-
-import java.util.List;
-
 import sample.ble.sensortag.adapters.TiServicesAdapter;
 import sample.ble.sensortag.demo.DemoAccelerometerSensorActivity;
 import sample.ble.sensortag.demo.DemoGyroscopeSensorActivity;
@@ -45,6 +24,10 @@ import sample.ble.sensortag.sensor.TiAccelerometerSensor;
 import sample.ble.sensortag.sensor.TiGyroscopeSensor;
 import sample.ble.sensortag.sensor.TiSensor;
 import sample.ble.sensortag.sensor.TiSensors;
+import sample.ble.sensortag.utils.BleActionsReceiver;
+import sample.ble.sensortag.utils.BleServiceListener;
+
+import java.util.List;
 
 /**
  * For a given BLE device, this Activity provides the user interface to connect, display data,
@@ -52,7 +35,7 @@ import sample.ble.sensortag.sensor.TiSensors;
  * communicates with {@code BleService}, which in turn interacts with the
  * Bluetooth LE API.
  */
-public class DeviceServicesActivity extends Activity {
+public class DeviceServicesActivity extends Activity implements BleServiceListener {
     private final static String TAG = DeviceServicesActivity.class.getSimpleName();
 
     public static final String EXTRAS_DEVICE_NAME = "DEVICE_NAME";
@@ -90,39 +73,13 @@ public class DeviceServicesActivity extends Activity {
         }
     };
 
-    // Handles various events fired by the Service.
-    // ACTION_GATT_CONNECTED: connected to a GATT server.
-    // ACTION_GATT_DISCONNECTED: disconnected from a GATT server.
-    // ACTION_GATT_SERVICES_DISCOVERED: discovered GATT services.
-    // ACTION_DATA_AVAILABLE: received data from the device.  This can be a result of read
-    //                        or notification operations.
-    private final BroadcastReceiver gattUpdateReceiver = new BroadcastReceiver() {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            final String action = intent.getAction();
-            if (BleService.ACTION_GATT_CONNECTED.equals(action)) {
-                isConnected = true;
-                updateConnectionState(R.string.connected);
-                invalidateOptionsMenu();
-            } else if (BleService.ACTION_GATT_DISCONNECTED.equals(action)) {
-                isConnected = false;
-                updateConnectionState(R.string.disconnected);
-                invalidateOptionsMenu();
-                clearUI();
-            } else if (BleService.ACTION_GATT_SERVICES_DISCOVERED.equals(action)) {
-                // Show all the supported services and characteristics on the user interface.
-                displayGattServices(bleService.getSupportedGattServices());
-            } else if (BleService.ACTION_DATA_AVAILABLE.equals(action)) {
-                displayData(intent.getStringExtra(BleService.EXTRA_TEXT));
-            }
-        }
-    };
+    private final BroadcastReceiver gattUpdateReceiver = new BleActionsReceiver(this);
 
-    // If a given GATT characteristic is selected, check for supported features.  This sample
-    // demonstrates 'Read' and 'Notify' features.  See
-    // http://d.android.com/reference/android/bluetooth/BluetoothGatt.html for the complete
-    // list of supported characteristic features.
-    private final ExpandableListView.OnChildClickListener servicesListClickListner =
+    // If a given GATT characteristic is selected, check for supported features.
+    // This sample demonstrates 'Read' and 'Notify' features.
+    // See http://d.android.com/reference/android/bluetooth/BluetoothGatt.html
+    // for the complete list of supported characteristic features.
+    private final ExpandableListView.OnChildClickListener servicesListClickListener =
             new ExpandableListView.OnChildClickListener() {
                 @Override
                 public boolean onChildClick(ExpandableListView parent, View v, int groupPosition,
@@ -217,7 +174,7 @@ public class DeviceServicesActivity extends Activity {
         // Sets up UI references.
         ((TextView) findViewById(R.id.device_address)).setText(deviceAddress);
         gattServicesList = (ExpandableListView) findViewById(R.id.gatt_services_list);
-        gattServicesList.setOnChildClickListener(servicesListClickListner);
+        gattServicesList.setOnChildClickListener(servicesListClickListener);
         connectionState = (TextView) findViewById(R.id.connection_state);
         dataField = (TextView) findViewById(R.id.data_value);
 
@@ -231,10 +188,9 @@ public class DeviceServicesActivity extends Activity {
     @Override
     protected void onResume() {
         super.onResume();
-        registerReceiver(gattUpdateReceiver, makeGattUpdateIntentFilter());
+        registerReceiver(gattUpdateReceiver, BleActionsReceiver.createIntentFilter());
         if (bleService != null) {
-            final boolean result = bleService.connect(deviceAddress);
-            Log.d(TAG, "Connect request result=" + result);
+            bleService.connect(deviceAddress);
         }
     }
 
@@ -280,21 +236,6 @@ public class DeviceServicesActivity extends Activity {
         return super.onOptionsItemSelected(item);
     }
 
-    private void updateConnectionState(final int resourceId) {
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                connectionState.setText(resourceId);
-            }
-        });
-    }
-
-    private void displayData(String data) {
-        if (data != null) {
-            dataField.setText(data);
-        }
-    }
-
     private void displayGattServices(List<BluetoothGattService> gattServices) {
         if (gattServices == null)
             return;
@@ -304,12 +245,29 @@ public class DeviceServicesActivity extends Activity {
         gattServicesList.setAdapter(gattServiceAdapter);
     }
 
-    private static IntentFilter makeGattUpdateIntentFilter() {
-        final IntentFilter intentFilter = new IntentFilter();
-        intentFilter.addAction(BleService.ACTION_GATT_CONNECTED);
-        intentFilter.addAction(BleService.ACTION_GATT_DISCONNECTED);
-        intentFilter.addAction(BleService.ACTION_GATT_SERVICES_DISCOVERED);
-        intentFilter.addAction(BleService.ACTION_DATA_AVAILABLE);
-        return intentFilter;
+    @Override
+    public void onConnected() {
+        isConnected = true;
+        connectionState.setText(R.string.connected);
+        invalidateOptionsMenu();
+    }
+
+    @Override
+    public void onDisconnected() {
+        isConnected = false;
+        connectionState.setText(R.string.disconnected);
+        invalidateOptionsMenu();
+        clearUI();
+    }
+
+    @Override
+    public void onServiceDiscovered() {
+        // Show all the supported services and characteristics on the user interface.
+        displayGattServices(bleService.getSupportedGattServices());
+    }
+
+    @Override
+    public void onDataAvailable(String serviceUuid, String characteristicUUid, String text, byte[] data) {
+        dataField.setText(text);
     }
 }

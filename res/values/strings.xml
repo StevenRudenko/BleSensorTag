@@ -15,22 +15,35 @@
 -->
 <resources>
     <string name="app_name">BLE SensorTag</string>
-    <string name="ble_not_supported">BLE is not supported</string>
+
+    <!-- Common strings -->
+    <string name="ok">OK</string>
+    <string name="cancel">Cancel</string>
+    <string name="turn_on">Turn on</string>
+
     <string name="label_data">Data:</string>
     <string name="label_device_address">Device address:</string>
     <string name="label_state">State:</string>
     <string name="label_services">Services</string>
     <string name="no_data">No data</string>
+
+    <!-- Dialog strings -->
+    <string name="dialog_error_no_ble">Bluetooth Low Energy technology is not supported on your device.</string>
+    <string name="dialog_error_no_bluetooth">Bluetooth is not supported on your device.</string>
+    <string name="dialog_enable_bluetooth">Please turn on Bluetooth to scan for SensorTag devices around you.</string>
+
+    <!-- Actions -->
     <string name="connected">Connected</string>
     <string name="disconnected">Disconnected</string>
-    <string name="title_devices">BLE Device Scan</string>
-    <string name="error_bluetooth_not_supported">Bluetooth not supported.</string>
-
     <string name="action_demo">Demo</string>
 
+    <!-- Titles -->
+    <string name="title_devices">BLE Device Scan</string>
     <string name="title_demo_accelerometer">Accelerometer Demo</string>
     <string name="title_demo_gyroscope">Gyroscope Demo</string>
+    <string name="title_demo_sensor_fusion">Sensor Fusion Demo</string>
 
+    <!-- Unknown values -->
     <string name="unknown_device">Unknown device</string>
     <string name="unknown_characteristic">Unknown characteristic</string>
     <string name="unknown_service">Unknown service</string>
@@ -40,4 +53,6 @@
     <string name="menu_disconnect">Disconnect</string>
     <string name="menu_scan">Scan</string>
     <string name="menu_stop">Stop</string>
+    <string name="menu_demo">@string/action_demo</string>
+    <string name="menu_lock_orientation">Lock orientation</string>
 </resources>

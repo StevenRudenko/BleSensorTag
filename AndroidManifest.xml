@@ -33,7 +33,7 @@ limitations under the License.
                  android:icon="@drawable/ic_launcher"
                  android:theme="@android:style/Theme.Holo.Light">
         <activity android:name=".DeviceScanActivity"
-                  android:label="@string/app_name">
+                  android:label="@string/title_devices">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
                 <category android:name="android.intent.category.LAUNCHER"/>
@@ -42,6 +42,15 @@ limitations under the License.
         <activity android:name=".DeviceServicesActivity"/>
         <activity android:name=".demo.DemoAccelerometerSensorActivity"/>
         <activity android:name=".demo.DemoGyroscopeSensorActivity"/>
-        <service android:name=".BleService" android:enabled="true"/>
+        <service android:name=".BleService"
+                 android:enabled="true"/>
+        <service android:name=".BleSensorsRecordService"
+                 android:enabled="true"
+                 android:exported="true"/>
+        <receiver android:name=".BluetoothStateReciever">
+            <intent-filter>
+                <action android:name="android.bluetooth.adapter.action.STATE_CHANGED"/>
+            </intent-filter>
+        </receiver>
     </application>
 </manifest>

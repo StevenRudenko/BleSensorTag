@@ -1,19 +1,3 @@
-/*
- * Copyright (C) 2013 The Android Open Source Project
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 package sample.ble.sensortag;
 
 import android.app.Service;
@@ -22,31 +6,27 @@ import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothGatt;
 import android.bluetooth.BluetoothGattCharacteristic;
 import android.bluetooth.BluetoothGattService;
-import android.bluetooth.BluetoothManager;
 import android.bluetooth.BluetoothProfile;
-import android.content.Context;
 import android.content.Intent;
 import android.os.Binder;
+import android.os.Handler;
 import android.os.IBinder;
+import android.os.Looper;
 import android.util.Log;
-
-import java.util.List;
-
 import sample.ble.sensortag.sensor.TiSensor;
 import sample.ble.sensortag.sensor.TiSensors;
+import sample.ble.sensortag.utils.BleExecutorListener;
+import sample.ble.sensortag.utils.BleServiceListener;
+import sample.ble.sensortag.utils.BleUtils;
+
+import java.util.List;
 
 /**
  * Service for managing connection and data communication with a GATT server hosted on a
  * given Bluetooth LE device.
  */
-public class BleService extends Service {
+public class BleService extends Service implements BleExecutorListener {
     private final static String TAG = BleService.class.getSimpleName();
-
-    private BluetoothManager bluetoothManager;
-    private BluetoothAdapter adapter;
-    private String deviceAddress;
-    private BluetoothGatt gatt;
-    private int connectionState = STATE_DISCONNECTED;
 
     private static final int STATE_DISCONNECTED = 0;
     private static final int STATE_CONNECTING = 1;
@@ -62,108 +42,26 @@ public class BleService extends Service {
     public final static String EXTRA_DATA = INTENT_PREFIX+".EXTRA_DATA";
     public final static String EXTRA_TEXT = INTENT_PREFIX+".EXTRA_TEXT";
 
-    // Implements callback methods for GATT events that the app cares about.
-    // For example, connection change and services discovered.
-    private final BluetoothGattExecutor executor = new BluetoothGattExecutor() {
-
-        @Override
-        public void onConnectionStateChange(BluetoothGatt gatt, int status, int newState) {
-            super.onConnectionStateChange(gatt, status, newState);
-
-            String intentAction;
-            if (newState == BluetoothProfile.STATE_CONNECTED) {
-                intentAction = ACTION_GATT_CONNECTED;
-                connectionState = STATE_CONNECTED;
-                broadcastUpdate(intentAction);
-                Log.i(TAG, "Connected to GATT server.");
-                // Attempts to discover services after successful connection.
-                Log.i(TAG, "Attempting to start service discovery:" +
-                        BleService.this.gatt.discoverServices());
-            } else if (newState == BluetoothProfile.STATE_DISCONNECTED) {
-                intentAction = ACTION_GATT_DISCONNECTED;
-                connectionState = STATE_DISCONNECTED;
-                Log.i(TAG, "Disconnected from GATT server.");
-                broadcastUpdate(intentAction);
-            }
-        }
-
-        @Override
-        public void onServicesDiscovered(BluetoothGatt gatt, int status) {
-            super.onServicesDiscovered(gatt, status);
-
-            if (status == BluetoothGatt.GATT_SUCCESS) {
-                broadcastUpdate(ACTION_GATT_SERVICES_DISCOVERED);
-            } else {
-                Log.w(TAG, "onServicesDiscovered received: " + status);
-            }
-        }
-
-        @Override
-        public void onCharacteristicRead(BluetoothGatt gatt,
-                                         BluetoothGattCharacteristic characteristic,
-                                         int status) {
-            super.onCharacteristicRead(gatt, characteristic, status);
-
-            if (status == BluetoothGatt.GATT_SUCCESS) {
-                final TiSensor<?> sensor = TiSensors.getSensor(characteristic.getService().getUuid().toString());
-                if (sensor != null) {
-                    if (sensor.onCharacteristicRead(characteristic)) {
-                        return;
-                    }
-                }
-
-                broadcastUpdate(ACTION_DATA_AVAILABLE, characteristic);
-            }
-        }
-
-        @Override
-        public void onCharacteristicChanged(BluetoothGatt gatt,
-                                            BluetoothGattCharacteristic characteristic) {
-            super.onCharacteristicChanged(gatt, characteristic);
-
-            broadcastUpdate(ACTION_DATA_AVAILABLE, characteristic);
-        }
-    };
-
-    private void broadcastUpdate(final String action) {
-        final Intent intent = new Intent(action);
-        sendBroadcast(intent);
-    }
-
-    private void broadcastUpdate(final String action,
-                                 final BluetoothGattCharacteristic characteristic) {
-        final Intent intent = new Intent(action);
-        intent.putExtra(EXTRA_SERVICE_UUID, characteristic.getService().getUuid().toString());
-        intent.putExtra(EXTRA_CHARACTERISTIC_UUID, characteristic.getUuid().toString());
-
-        final TiSensor<?> sensor = TiSensors.getSensor(characteristic.getService().getUuid().toString());
-        if (sensor != null) {
-            sensor.onCharacteristicChanged(characteristic);
-            final String text = sensor.getDataString();
-            intent.putExtra(EXTRA_TEXT, text);
-            sendBroadcast(intent);
-        } else {
-            // For all other profiles, writes the data formatted in HEX.
-            final byte[] data = characteristic.getValue();
-            if (data != null && data.length > 0) {
-                final StringBuilder stringBuilder = new StringBuilder(data.length);
-                for (byte byteChar : data)
-                    stringBuilder.append(String.format("%02X ", byteChar));
-                intent.putExtra(EXTRA_TEXT, new String(data) + "\n" + stringBuilder.toString());
-            }
-        }
-        sendBroadcast(intent);
-    }
-
     public class LocalBinder extends Binder {
         public BleService getService() {
             return BleService.this;
         }
     }
 
+    private final IBinder binder = new LocalBinder();
+    private final Handler mainThreadHandler = new Handler(Looper.getMainLooper());
+    private BluetoothAdapter adapter;
+    private String deviceAddress;
+    private BluetoothGatt gatt;
+    private int connectionState = STATE_DISCONNECTED;
+
+    private BleServiceListener serviceListener;
+
+    private final BluetoothGattExecutor executor = BleUtils.createExecutor(this);
+
     @Override
     public IBinder onBind(Intent intent) {
-        return mBinder;
+        return binder;
     }
 
     @Override
@@ -175,7 +73,12 @@ public class BleService extends Service {
         return super.onUnbind(intent);
     }
 
-    private final IBinder mBinder = new LocalBinder();
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        disconnect();
+        close();
+    }
 
     /**
      * Initializes a reference to the local Bluetooth adapter.
@@ -183,18 +86,10 @@ public class BleService extends Service {
      * @return Return true if the initialization is successful.
      */
     public boolean initialize() {
-        // For API level 18 and above, get a reference to BluetoothAdapter through
-        // BluetoothManager.
-        if (bluetoothManager == null) {
-            bluetoothManager = (BluetoothManager) getSystemService(Context.BLUETOOTH_SERVICE);
-            if (bluetoothManager == null) {
-                Log.e(TAG, "Unable to initialize BluetoothManager.");
-                return false;
-            }
-        }
-
-        adapter = bluetoothManager.getAdapter();
         if (adapter == null) {
+            adapter = BleUtils.getBluetoothAdapter(getBaseContext());
+        }
+        if (adapter == null || !adapter.isEnabled()) {
             Log.e(TAG, "Unable to obtain a BluetoothAdapter.");
             return false;
         }
@@ -219,8 +114,7 @@ public class BleService extends Service {
         }
 
         // Previously connected device.  Try to reconnect.
-        if (deviceAddress != null && address.equals(deviceAddress)
-                && gatt != null) {
+        if (deviceAddress != null && address.equals(deviceAddress) && gatt != null) {
             Log.d(TAG, "Trying to use an existing BluetoothGatt for connection.");
             if (gatt.connect()) {
                 connectionState = STATE_CONNECTING;
@@ -270,6 +164,14 @@ public class BleService extends Service {
         gatt = null;
     }
 
+    public int getState() {
+        return connectionState;
+    }
+
+    public void setServiceListener(BleServiceListener listener) {
+        serviceListener = listener;
+    }
+
     /**
      * Request a read on a given {@code BluetoothGattCharacteristic}. The read result is reported
      * asynchronously through the {@code BluetoothGattCallback#onCharacteristicRead(android.bluetooth.BluetoothGatt, android.bluetooth.BluetoothGattCharacteristic, int)}
@@ -301,7 +203,7 @@ public class BleService extends Service {
     /**
      * Enables or disables notification on a give characteristic.
      *
-     * @param sensor
+     * @param sensor sensor to be enabled/disabled
      * @param enabled If true, enable notification.  False otherwise.
      */
     public void enableSensor(TiSensor<?> sensor, boolean enabled) {
@@ -324,8 +226,110 @@ public class BleService extends Service {
      * @return A {@code List} of supported services.
      */
     public List<BluetoothGattService> getSupportedGattServices() {
-        if (gatt == null) return null;
+        if (gatt == null)
+            return null;
 
         return gatt.getServices();
+    }
+
+    @Override
+    public void onConnectionStateChange(BluetoothGatt gatt, int status, int newState) {
+        String intentAction;
+        if (newState == BluetoothProfile.STATE_CONNECTED) {
+            intentAction = ACTION_GATT_CONNECTED;
+            connectionState = STATE_CONNECTED;
+            broadcastUpdate(intentAction);
+            Log.i(TAG, "Connected to GATT server.");
+            // Attempts to discover services after successful connection.
+            Log.i(TAG, "Attempting to start service discovery:" +
+                    BleService.this.gatt.discoverServices());
+            if (serviceListener != null)
+                serviceListener.onConnected();
+        } else if (newState == BluetoothProfile.STATE_DISCONNECTED) {
+            intentAction = ACTION_GATT_DISCONNECTED;
+            connectionState = STATE_DISCONNECTED;
+            Log.i(TAG, "Disconnected from GATT server.");
+            broadcastUpdate(intentAction);
+            if (serviceListener != null)
+                serviceListener.onDisconnected();
+        }
+    }
+
+    @Override
+    public void onServicesDiscovered(BluetoothGatt gatt, int status) {
+        if (status == BluetoothGatt.GATT_SUCCESS) {
+            broadcastUpdate(ACTION_GATT_SERVICES_DISCOVERED);
+            if (serviceListener != null)
+                serviceListener.onServiceDiscovered();
+        } else {
+            Log.w(TAG, "onServicesDiscovered received: " + status);
+        }
+    }
+
+    @Override
+    public void onCharacteristicRead(BluetoothGatt gatt,
+                                     BluetoothGattCharacteristic characteristic,
+                                     int status) {
+        if (status != BluetoothGatt.GATT_SUCCESS)
+            return;
+        final TiSensor<?> sensor = TiSensors.getSensor(characteristic.getService().getUuid().toString());
+        if (sensor != null) {
+            if (sensor.onCharacteristicRead(characteristic)) {
+                return;
+            }
+        }
+
+        broadcastUpdate(ACTION_DATA_AVAILABLE, characteristic);
+    }
+
+    @Override
+    public void onCharacteristicChanged(BluetoothGatt gatt,
+                                        BluetoothGattCharacteristic characteristic) {
+        broadcastUpdate(ACTION_DATA_AVAILABLE, characteristic);
+    }
+
+    private void broadcastUpdate(final String action) {
+        final Intent intent = new Intent(action);
+        sendBroadcast(intent);
+    }
+
+    private void broadcastUpdate(final String action,
+                                 final BluetoothGattCharacteristic characteristic) {
+        final String serviceUuid = characteristic.getService().getUuid().toString();
+        final String characteristicUuid = characteristic.getUuid().toString();
+        final byte[] data;
+        final String text;
+
+        final Intent intent = new Intent(action);
+        intent.putExtra(EXTRA_SERVICE_UUID, serviceUuid);
+        intent.putExtra(EXTRA_CHARACTERISTIC_UUID, characteristicUuid);
+
+        final TiSensor<?> sensor = TiSensors.getSensor(serviceUuid);
+        if (sensor != null) {
+            sensor.onCharacteristicChanged(characteristic);
+            text = sensor.getDataString();
+            data = null;
+
+            intent.putExtra(EXTRA_TEXT, text);
+            sendBroadcast(intent);
+        } else {
+            data = characteristic.getValue();
+            // For all other profiles, writes the data formatted in HEX.
+            if (data != null && data.length > 0) {
+                final StringBuilder stringBuilder = new StringBuilder(data.length);
+                for (byte byteChar : data)
+                    stringBuilder.append(String.format("%02X ", byteChar));
+                text = new String(data) + "\n" + stringBuilder.toString();
+
+                intent.putExtra(EXTRA_TEXT, text);
+                intent.putExtra(EXTRA_DATA, data);
+            } else {
+                text = null;
+            }
+        }
+        sendBroadcast(intent);
+
+        if (serviceListener != null)
+            serviceListener.onDataAvailable(serviceUuid, characteristicUuid, text, data);
     }
 }

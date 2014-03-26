@@ -11,7 +11,7 @@ import static android.bluetooth.BluetoothGattCharacteristic.FORMAT_SINT8;
  */
 public class TiAccelerometerSensor extends TiSensor<float[]> implements TiPeriodicalSensor {
 
-    private static final String UUID_SERVICE = "f000aa10-0451-4000-b000-000000000000";
+    public static final String UUID_SERVICE = "f000aa10-0451-4000-b000-000000000000";
     private static final String UUID_DATA = "f000aa11-0451-4000-b000-000000000000";
     private static final String UUID_CONFIG = "f000aa12-0451-4000-b000-000000000000";
     private static final String UUID_PERIOD = "f000aa13-0451-4000-b000-000000000000";
