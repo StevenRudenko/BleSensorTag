@@ -1,28 +1,22 @@
-package sample.ble.sensortag.demo;
+package sample.ble.sensortag.fusion;
 
-import android.content.Context;
 import android.content.pm.ActivityInfo;
-import android.hardware.Sensor;
-import android.hardware.SensorEvent;
-import android.hardware.SensorEventListener;
-import android.hardware.SensorManager;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Looper;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
 import rajawali.Object3D;
 import sample.ble.sensortag.R;
-import sample.ble.sensortag.fusion.SensorFusionHelper;
+import sample.ble.sensortag.config.AppConfig;
+import sample.ble.sensortag.fusion.engine.SensorFusionHelper;
+import sample.ble.sensortag.fusion.sensors.AndroidSensorManager;
+import sample.ble.sensortag.fusion.sensors.ISensor;
+import sample.ble.sensortag.fusion.sensors.ISensorManager;
 import sample.ble.sensortag.gl.GlActivity;
 
-public class LocalSensorFusionActivity extends GlActivity implements SensorEventListener {
-    private final static String TAG = LocalSensorFusionActivity.class.getSimpleName();
-
-    private SensorManager sensorManager;
-    private Handler processor = null;
+public class LocalSensorFusionActivity extends GlActivity implements ISensorManager.SensorEventListener {
+    private ISensorManager sensorManager;
 
     private TextView viewFused;
 
@@ -53,7 +47,8 @@ public class LocalSensorFusionActivity extends GlActivity implements SensorEvent
 
         getActionBar().setTitle(R.string.title_demo_sensor_fusion);
 
-        sensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
+        sensorManager = new AndroidSensorManager(getBaseContext());
+        sensorManager.setListener(this);
 
         findViewById(R.id.acc).setVisibility(View.GONE);
         findViewById(R.id.mag).setVisibility(View.GONE);
@@ -67,15 +62,23 @@ public class LocalSensorFusionActivity extends GlActivity implements SensorEvent
     }
 
     @Override
-    protected void onResume() {
-        super.onResume();
-        start();
+    protected void onStart() {
+        super.onStart();
+
+        sensorManager.enable();
+        if (AppConfig.SENSOR_FUSION_USE_MAGNET_SENSOR)
+            sensorManager.registerSensor(ISensor.TYPE_MAGNETIC_FIELD);
+        sensorManager.registerSensor(ISensor.TYPE_ACCELEROMETER);
+        sensorManager.registerSensor(ISensor.TYPE_GYROSCOPE);
+        sensorFusion.start();
     }
 
     @Override
-    protected void onPause() {
-        super.onPause();
-        stop();
+    protected void onStop() {
+        super.onStop();
+
+        sensorFusion.stop();
+        sensorManager.disable();
     }
 
     @Override
@@ -112,62 +115,20 @@ public class LocalSensorFusionActivity extends GlActivity implements SensorEvent
         }
     }
 
-    private void start() {
-        final Thread processorThread = new Thread(TAG) {
-            public void run() {
-                Looper.prepare();
-                processor = new Handler();
-                android.os.Process.setThreadPriority(android.os.Process.THREAD_PRIORITY_BACKGROUND);
-
-                sensorManager.registerListener(LocalSensorFusionActivity.this,
-                        sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER),
-                        SensorManager.SENSOR_DELAY_FASTEST, processor);
-
-                sensorManager.registerListener(LocalSensorFusionActivity.this,
-                        sensorManager.getDefaultSensor(Sensor.TYPE_GYROSCOPE),
-                        SensorManager.SENSOR_DELAY_FASTEST, processor);
-
-                sensorManager.registerListener(LocalSensorFusionActivity.this,
-                        sensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD),
-                        SensorManager.SENSOR_DELAY_FASTEST, processor);
-
-                Looper.loop();
-            }
-        };
-        processorThread.start();
-
-        sensorFusion.start();
-    }
-
-    private void stop() {
-        sensorFusion.stop();
-        sensorManager.unregisterListener(this);
-
-        if (processor != null) {
-            processor.getLooper().quit();
-            processor = null;
-        }
-    }
-
     @Override
-    public void onSensorChanged(SensorEvent event) {
-        switch(event.sensor.getType()) {
-            case Sensor.TYPE_ACCELEROMETER:
-                sensorFusion.onAccDataUpdate(event.values);
+    public void onSensorChanged(int sensorType, float[] values) {
+        switch(sensorType) {
+            case ISensor.TYPE_ACCELEROMETER:
+                sensorFusion.onAccDataUpdate(values);
                 break;
 
-            case Sensor.TYPE_GYROSCOPE:
-                sensorFusion.onGyroDataUpdate(event.values);
+            case ISensor.TYPE_GYROSCOPE:
+                sensorFusion.onGyroDataUpdate(values);
                 break;
 
-            case Sensor.TYPE_MAGNETIC_FIELD:
-                sensorFusion.onMagDataUpdate(event.values);
+            case ISensor.TYPE_MAGNETIC_FIELD:
+                sensorFusion.onMagDataUpdate(values);
                 break;
         }
-    }
-
-    @Override
-    public void onAccuracyChanged(Sensor sensor, int accuracy) {
-          // do nothing
     }
 }

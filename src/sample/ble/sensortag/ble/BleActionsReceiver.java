@@ -1,4 +1,4 @@
-package sample.ble.sensortag.utils;
+package sample.ble.sensortag.ble;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;

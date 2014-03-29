@@ -12,11 +12,11 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.ListView;
 import sample.ble.sensortag.adapters.BleDevicesAdapter;
-import sample.ble.sensortag.demo.LocalSensorFusionActivity;
+import sample.ble.sensortag.fusion.LocalSensorFusionActivity;
 import sample.ble.sensortag.dialogs.EnableBluetoothDialog;
 import sample.ble.sensortag.dialogs.ErrorDialog;
-import sample.ble.sensortag.utils.BleDevicesScanner;
-import sample.ble.sensortag.utils.BleUtils;
+import sample.ble.sensortag.ble.BleDevicesScanner;
+import sample.ble.sensortag.ble.BleUtils;
 
 /**
  * Activity for scanning and displaying available Bluetooth LE devices.

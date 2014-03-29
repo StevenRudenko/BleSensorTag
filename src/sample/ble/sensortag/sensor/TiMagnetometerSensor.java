@@ -2,12 +2,12 @@ package sample.ble.sensortag.sensor;
 
 import android.bluetooth.BluetoothGattCharacteristic;
 
-import sample.ble.sensortag.BluetoothGattExecutor;
+import sample.ble.sensortag.ble.BleGattExecutor;
 
 /**
  * Created by steven on 9/3/13.
  */
-public class TiMagnetometerSensor extends TiSensor<float[]>implements TiPeriodicalSensor {
+public class TiMagnetometerSensor extends TiRangeSensors<float[], Float> {
 
     public static final String UUID_SERVICE = "f000aa30-0451-4000-b000-000000000000";
     private static final String UUID_DATA = "f000aa31-0451-4000-b000-000000000000";
@@ -84,7 +84,12 @@ public class TiMagnetometerSensor extends TiSensor<float[]>implements TiPeriodic
     }
 
     @Override
-    public BluetoothGattExecutor.ServiceAction update() {
+    public Float getMaxRange() {
+        return 1.f;
+    }
+
+    @Override
+    public BleGattExecutor.ServiceAction update() {
         return write(UUID_PERIOD, new byte[]{(byte) period});
     }
 

@@ -42,9 +42,9 @@ limitations under the License.
             </intent-filter>
         </activity>
         <activity android:name=".DeviceServicesActivity"/>
-        <activity android:name=".demo.DemoSensorFusionActivity"
+        <activity android:name=".fusion.DemoSensorFusionActivity"
                   android:hardwareAccelerated="false"/>
-        <activity android:name=".demo.LocalSensorFusionActivity"
+        <activity android:name=".fusion.LocalSensorFusionActivity"
                   android:hardwareAccelerated="false"/>
 
         <service android:name=".BleService"

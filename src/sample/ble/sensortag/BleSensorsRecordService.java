@@ -5,15 +5,14 @@ import android.bluetooth.BluetoothDevice;
 import android.content.Intent;
 import android.util.Log;
 import android.widget.Toast;
+import sample.ble.sensortag.ble.BleDevicesScanner;
+import sample.ble.sensortag.ble.BleUtils;
 import sample.ble.sensortag.config.AppConfig;
 import sample.ble.sensortag.sensor.TiAccelerometerSensor;
 import sample.ble.sensortag.sensor.TiSensor;
 import sample.ble.sensortag.sensor.TiSensors;
-import sample.ble.sensortag.utils.BleDevicesScanner;
-import sample.ble.sensortag.utils.BleServiceListener;
-import sample.ble.sensortag.utils.BleUtils;
 
-public class BleSensorsRecordService extends BleService implements BleServiceListener {
+public class BleSensorsRecordService extends BleService {
     private static final String TAG = BleSensorsRecordService.class.getSimpleName();
 
     private static final String RECORD_DEVICE_NAME = "SensorTag";
@@ -44,7 +43,7 @@ public class BleSensorsRecordService extends BleService implements BleServiceLis
                 break;
         }
 
-        if (!initialize()) {
+        if (!getBleManager().initialize(getBaseContext())) {
             stopSelf();
             return;
         }
@@ -57,7 +56,7 @@ public class BleSensorsRecordService extends BleService implements BleServiceLis
                 Log.d(TAG, "Device discovered: " + device.getName());
                 if (RECORD_DEVICE_NAME.equals(RECORD_DEVICE_NAME)) {
                     scanner.stop();
-                    connect(device.getAddress());
+                    getBleManager().connect(getBaseContext(), device.getAddress());
                 }
             }
         });

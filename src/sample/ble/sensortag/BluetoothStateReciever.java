@@ -5,7 +5,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import sample.ble.sensortag.config.AppConfig;
-import sample.ble.sensortag.utils.BleUtils;
+import sample.ble.sensortag.ble.BleUtils;
 
 public class BluetoothStateReciever extends BroadcastReceiver {
 

@@ -4,7 +4,7 @@ import static android.bluetooth.BluetoothGattCharacteristic.FORMAT_UINT8;
 
 import android.bluetooth.BluetoothGattCharacteristic;
 
-import sample.ble.sensortag.BluetoothGattExecutor;
+import sample.ble.sensortag.ble.BleGattExecutor;
 
 /**
  * Created by steven on 9/3/13.
@@ -42,8 +42,8 @@ public class TiKeysSensor extends TiSensor<TiKeysSensor.SimpleKeysStatus> {
 
 
     @Override
-    public BluetoothGattExecutor.ServiceAction[] enable(boolean enable) {
-        return new BluetoothGattExecutor.ServiceAction[] {
+    public BleGattExecutor.ServiceAction[] enable(boolean enable) {
+        return new BleGattExecutor.ServiceAction[] {
                 notify(enable)
         };
     }

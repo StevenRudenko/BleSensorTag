@@ -1,4 +1,4 @@
-package sample.ble.sensortag.utils;
+package sample.ble.sensortag.ble;
 
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;

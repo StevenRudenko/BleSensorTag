@@ -26,8 +26,6 @@ import java.util.List;
 public class TiServicesAdapter extends BaseExpandableListAdapter {
 
     public interface OnServiceItemClickListener {
-        public void onDemoClick(BluetoothGattService service);
-        public void onServiceEnabled(BluetoothGattService service, boolean enabled);
         public void onServiceUpdated(BluetoothGattService service);
     }
 
@@ -101,17 +99,6 @@ public class TiServicesAdapter extends BaseExpandableListAdapter {
             convertView = inflater.inflate(R.layout.listitem_service, parent, false);
             holder.name = (TextView) convertView.findViewById(R.id.name);
             holder.uuid = (TextView) convertView.findViewById(R.id.uuid);
-            holder.demo = convertView.findViewById(R.id.demo);
-
-            holder.demo.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    if (serviceListener == null)
-                        return;
-                    final BluetoothGattService service = (BluetoothGattService) holder.demo.getTag();
-                    serviceListener.onDemoClick(service);
-                }
-            });
 
             convertView.setTag(holder);
         } else {
@@ -135,12 +122,6 @@ public class TiServicesAdapter extends BaseExpandableListAdapter {
 
         holder.name.setText(serviceName);
         holder.uuid.setText(uuid);
-        if (isDemoable(sensor)) {
-            holder.demo.setTag(item);
-            holder.demo.setVisibility(View.VISIBLE);
-        } else {
-            holder.demo.setVisibility(View.GONE);
-        }
 
         return convertView;
     }
@@ -243,10 +224,6 @@ public class TiServicesAdapter extends BaseExpandableListAdapter {
         return true;
     }
 
-    private static boolean isDemoable(TiSensor<?> sensor) {
-        return false;
-    }
-
     private static String getModeString(int prop) {
         final StringBuilder modeBuilder = new StringBuilder();
         if ((prop & BluetoothGattCharacteristic.PROPERTY_READ) > 0) {
@@ -268,7 +245,6 @@ public class TiServicesAdapter extends BaseExpandableListAdapter {
     private static class GroupViewHolder {
         public TextView name;
         public TextView uuid;
-        public View demo;
     }
 
     private static class ChildViewHolder {

@@ -1,4 +1,4 @@
-package sample.ble.sensortag.fusion;
+package sample.ble.sensortag.fusion.engine;
 
 import java.util.Timer;
 

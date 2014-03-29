@@ -8,15 +8,12 @@ import android.opengl.GLSurfaceView;
 import android.os.Bundle;
 import rajawali.Object3D;
 import sample.ble.sensortag.R;
-import sample.ble.sensortag.gl.ModelLoader;
-import sample.ble.sensortag.gl.ModelRenderer;
 
 public abstract class GlActivity extends Activity {
 
     private final ModelLoader loader = new ModelLoader();
     private GLSurfaceView gLView;
     private ModelRenderer renderer = null;
-
 
     @Override
     public void onCreate(Bundle savedInstanceState) {

@@ -2,7 +2,7 @@ package sample.ble.sensortag.sensor;
 
 import android.bluetooth.BluetoothGattCharacteristic;
 
-import sample.ble.sensortag.BluetoothGattExecutor;
+import sample.ble.sensortag.ble.BleGattExecutor;
 
 /**
  * Created by steven on 9/3/13.
@@ -39,13 +39,13 @@ public class TiTestSensor extends TiSensor<Void> {
     }
 
     @Override
-    public BluetoothGattExecutor.ServiceAction[] enable(boolean enable) {
-        return new BluetoothGattExecutor.ServiceAction[0];
+    public BleGattExecutor.ServiceAction[] enable(boolean enable) {
+        return new BleGattExecutor.ServiceAction[0];
     }
 
     @Override
-    public BluetoothGattExecutor.ServiceAction notify(boolean start) {
-        return BluetoothGattExecutor.ServiceAction.NULL;
+    public BleGattExecutor.ServiceAction notify(boolean start) {
+        return BleGattExecutor.ServiceAction.NULL;
     }
 
     @Override

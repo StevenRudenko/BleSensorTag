@@ -4,7 +4,7 @@ import static java.lang.Math.pow;
 
 import android.bluetooth.BluetoothGattCharacteristic;
 
-import sample.ble.sensortag.BluetoothGattExecutor;
+import sample.ble.sensortag.ble.BleGattExecutor;
 
 /**
  * Created by steven on 9/3/13.
@@ -73,9 +73,9 @@ public class TiPressureSensor extends TiSensor<Double> {
     }
 
     @Override
-    public BluetoothGattExecutor.ServiceAction[] enable(boolean enable) {
+    public BleGattExecutor.ServiceAction[] enable(boolean enable) {
         if (enable) {
-            return new BluetoothGattExecutor.ServiceAction[] {
+            return new BleGattExecutor.ServiceAction[] {
                     write(UUID_CONFIG, CALIBRATION_DATA),
                     read(UUID_CALIBRATION),
                     write(getConfigUUID(), getConfigValues(enable)),

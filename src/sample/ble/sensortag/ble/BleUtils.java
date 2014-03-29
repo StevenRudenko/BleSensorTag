@@ -1,4 +1,4 @@
-package sample.ble.sensortag.utils;
+package sample.ble.sensortag.ble;
 
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothGatt;
@@ -6,7 +6,6 @@ import android.bluetooth.BluetoothGattCharacteristic;
 import android.bluetooth.BluetoothManager;
 import android.content.Context;
 import android.content.pm.PackageManager;
-import sample.ble.sensortag.BluetoothGattExecutor;
 
 public class BleUtils {
 
@@ -44,8 +43,8 @@ public class BleUtils {
         return STATUS_BLE_ENABLED;
     }
 
-    public static BluetoothGattExecutor createExecutor(final BleExecutorListener listener) {
-        return new BluetoothGattExecutor() {
+    public static BleGattExecutor createExecutor(final BleExecutorListener listener) {
+        return new BleGattExecutor() {
             @Override
             public void onConnectionStateChange(BluetoothGatt gatt, int status, int newState) {
                 super.onConnectionStateChange(gatt, status, newState);

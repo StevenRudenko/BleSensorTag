@@ -1,4 +1,4 @@
-package sample.ble.sensortag;
+package sample.ble.sensortag.ble;
 
 import android.bluetooth.BluetoothGatt;
 import android.bluetooth.BluetoothGattCallback;
@@ -13,7 +13,7 @@ import sample.ble.sensortag.sensor.TiSensor;
 /**
  * Created by steven on 9/3/13.
  */
-public class BluetoothGattExecutor extends BluetoothGattCallback {
+public class BleGattExecutor extends BluetoothGattCallback {
 
     public interface ServiceAction {
         public static final ServiceAction NULL = new ServiceAction() {
@@ -33,7 +33,7 @@ public class BluetoothGattExecutor extends BluetoothGattCallback {
         public boolean execute(BluetoothGatt bluetoothGatt);
     }
 
-    private final LinkedList<BluetoothGattExecutor.ServiceAction> queue = new LinkedList<ServiceAction>();
+    private final LinkedList<BleGattExecutor.ServiceAction> queue = new LinkedList<ServiceAction>();
     private volatile ServiceAction currentAction;
 
     public void update(final TiSensor sensor) {
@@ -53,7 +53,7 @@ public class BluetoothGattExecutor extends BluetoothGattCallback {
 
         boolean next = !queue.isEmpty();
         while (next) {
-            final BluetoothGattExecutor.ServiceAction action = queue.pop();
+            final BleGattExecutor.ServiceAction action = queue.pop();
             currentAction = action;
             if (!action.execute(gatt))
                 break;

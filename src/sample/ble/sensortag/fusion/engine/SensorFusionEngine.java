@@ -22,9 +22,10 @@
  * OR OTHER DEALINGS IN THE SOFTWARE.
  ************************************************************************************/
 
-package sample.ble.sensortag.fusion;
+package sample.ble.sensortag.fusion.engine;
 
 import android.hardware.SensorManager;
+import sample.ble.sensortag.config.AppConfig;
 
 import java.util.TimerTask;
 
@@ -41,10 +42,6 @@ public class SensorFusionEngine extends TimerTask {
     private static final float TWO_PI = (float)(2.0 * Math.PI);
     private static final float HALF_PI = (float)(0.5 * Math.PI);
 
-    /**
-     * TODO: write comment here
-     */
-    private static final boolean USE_MAGNET_SENSOR = false;
     private static final float EPSILON = 0.000000001f;
     private static final float NS2S = 1.0f / 1000000000.0f;
 
@@ -108,7 +105,7 @@ public class SensorFusionEngine extends TimerTask {
     }
 
     public void onMagDataUpdate(float[] magnet) {
-        if (USE_MAGNET_SENSOR)
+        if (AppConfig.SENSOR_FUSION_USE_MAGNET_SENSOR)
             System.arraycopy(magnet, 0, this.magnet, 0, 3);
     }
 
