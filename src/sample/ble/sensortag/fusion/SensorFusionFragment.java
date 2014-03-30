@@ -35,7 +35,7 @@ public class SensorFusionFragment extends GlFragment implements ISensorManager.S
             getActivity().runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-                    viewFused.setText(String.format("%+.5f\n%+.5f\n%+.5f",
+                    viewFused.setText(String.format("%+.6f\n%+.6f\n%+.6f",
                                       orientation[0], orientation[1], orientation[2]));
                 }
             });

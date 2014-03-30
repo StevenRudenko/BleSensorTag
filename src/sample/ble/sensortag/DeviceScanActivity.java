@@ -14,6 +14,7 @@ import android.widget.ListView;
 import sample.ble.sensortag.adapters.BleDevicesAdapter;
 import sample.ble.sensortag.ble.BleDevicesScanner;
 import sample.ble.sensortag.ble.BleUtils;
+import sample.ble.sensortag.config.AppConfig;
 import sample.ble.sensortag.dialogs.EnableBluetoothDialog;
 import sample.ble.sensortag.dialogs.ErrorDialog;
 import sample.ble.sensortag.fusion.SensorFusionActivity;
@@ -67,6 +68,10 @@ public class DeviceScanActivity extends ListActivity
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.gatt_scan, menu);
+
+        if (!AppConfig.DEBUG)
+            menu.findItem(R.id.menu_demo).setVisible(false);
+
         if (scanner == null || !scanner.isScanning()) {
             menu.findItem(R.id.menu_stop).setVisible(false);
             menu.findItem(R.id.menu_scan).setVisible(true);
