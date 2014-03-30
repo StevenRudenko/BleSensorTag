@@ -25,10 +25,11 @@
     <string name="label_device_address">Device address:</string>
     <string name="label_state">State:</string>
     <string name="label_services">Services</string>
-    <string name="no_data">No data</string>
+    <string name="no_data">Please select any service</string>
 
     <!-- -->
     <string name="empty_scan_list">No devices found</string>
+    <string name="empty_services_list">Loading services list...</string>
     <string name="loading_model">Loading model...</string>
 
     <!-- Dialog strings -->

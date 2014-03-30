@@ -75,7 +75,7 @@ public class TiGyroscopeSensor extends TiRangeSensors<float[], Float> {
     @Override
     public String getDataString() {
         final float[] data = getData();
-        return "x="+data[0]+"\ny="+data[1]+"\nz="+data[2];
+        return TiSensorUtils.coordinatesToString(data);
     }
 
     @Override

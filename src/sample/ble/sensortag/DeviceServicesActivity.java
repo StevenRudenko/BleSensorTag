@@ -30,7 +30,6 @@ public class DeviceServicesActivity extends BleServiceBindingActivity
     @SuppressWarnings("UnusedDeclaration")
     private final static String TAG = DeviceServicesActivity.class.getSimpleName();
 
-    private TextView connectionState;
     private TextView dataField;
     private ExpandableListView gattServicesList;
     private TiServicesAdapter gattServiceAdapter;
@@ -42,14 +41,16 @@ public class DeviceServicesActivity extends BleServiceBindingActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.device_services_activity);
 
-        // Sets up UI references.
-        ((TextView) findViewById(R.id.device_address)).setText(getDeviceAddress());
+
         gattServicesList = (ExpandableListView) findViewById(R.id.gatt_services_list);
         gattServicesList.setOnChildClickListener(this);
-        connectionState = (TextView) findViewById(R.id.connection_state);
+        final View emptyView = findViewById(R.id.empty_view);
+        gattServicesList.setEmptyView(emptyView);
+
         dataField = (TextView) findViewById(R.id.data_value);
 
         getActionBar().setTitle(getDeviceName());
+        getActionBar().setSubtitle(getDeviceAddress());
         getActionBar().setDisplayHomeAsUpEnabled(true);
     }
 
@@ -81,14 +82,7 @@ public class DeviceServicesActivity extends BleServiceBindingActivity
     }
 
     @Override
-    public void onConnected() {
-        connectionState.setText(R.string.connected);
-    }
-
-    @Override
     public void onDisconnected() {
-        connectionState.setText(R.string.disconnected);
-        clearUI();
         finish();
     }
 
@@ -144,10 +138,5 @@ public class DeviceServicesActivity extends BleServiceBindingActivity
         gattServiceAdapter = new TiServicesAdapter(this, gattServices);
         gattServiceAdapter.setServiceListener(this);
         gattServicesList.setAdapter(gattServiceAdapter);
-    }
-
-    private void clearUI() {
-        gattServicesList.setAdapter((SimpleExpandableListAdapter) null);
-        dataField.setText(R.string.no_data);
     }
 }

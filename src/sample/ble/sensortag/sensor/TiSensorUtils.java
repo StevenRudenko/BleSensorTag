@@ -42,4 +42,8 @@ public class TiSensorUtils {
 
         return (upperByte << 8) + lowerByte;
     }
+
+    public static String coordinatesToString(float[] coordinates) {
+        return String.format("x=%+.6f\ny=%+.6f\nz=%+.6f", coordinates[0], coordinates[1], coordinates[2]);
+    }
 }
