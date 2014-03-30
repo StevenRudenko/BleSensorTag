@@ -11,6 +11,7 @@ import android.widget.ExpandableListView;
 import android.widget.SimpleExpandableListAdapter;
 import android.widget.TextView;
 import sample.ble.sensortag.adapters.TiServicesAdapter;
+import sample.ble.sensortag.config.AppConfig;
 import sample.ble.sensortag.fusion.SensorFusionActivity;
 import sample.ble.sensortag.sensor.TiSensor;
 import sample.ble.sensortag.sensor.TiSensors;
@@ -55,6 +56,11 @@ public class DeviceServicesActivity extends BleServiceBindingActivity
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.gatt_services, menu);
+
+        // enable demo for SensorTag device only
+        menu.findItem(R.id.menu_demo).setEnabled(
+                getDeviceName().startsWith(AppConfig.BLE_DEVICE_NAME));
+
         return true;
     }
 

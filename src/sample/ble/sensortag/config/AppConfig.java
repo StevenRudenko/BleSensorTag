@@ -15,4 +15,6 @@ public interface AppConfig {
      * Enables magnet sensor to be used while sensor fusion calculation.
      */
     public static final boolean SENSOR_FUSION_USE_MAGNET_SENSOR = false;
+
+    public static final String BLE_DEVICE_NAME = "SensorTag";
 }
