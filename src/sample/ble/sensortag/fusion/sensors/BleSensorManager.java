@@ -12,6 +12,11 @@ import sample.ble.sensortag.sensor.TiSensors;
 public class BleSensorManager extends ISensorManager implements BleServiceListener {
     private static final String TAG = BleSensorManager.class.getSimpleName();
 
+    // experimentally selected value
+    private static final double SENSOR_CALIBRATION = 75f;
+    private static final double SENSOR_FUSION_COEFF = -180f / Math.PI;
+    private final double[] fusedOrientation = new double[3];
+
     private final Context context;
     private final BleManager bleManager = new BleManager();
 
@@ -32,8 +37,10 @@ public class BleSensorManager extends ISensorManager implements BleServiceListen
             return sensors.get(sensorType);
 
         final TiSensor<?> sensor = TiSensors.getSensor(BleSensor.getSensorUuid(sensorType));
-        if (sensor instanceof TiRangeSensors<?, ?>)
-            return new BleSensor((TiRangeSensors<float[], Float>) sensor);
+        if (sensor instanceof TiRangeSensors<?, ?>) {
+            final BleSensor result = new BleSensor((TiRangeSensors<float[], Float>) sensor);
+            return result;
+        }
         throw new IllegalStateException();
     }
 
@@ -55,6 +62,7 @@ public class BleSensorManager extends ISensorManager implements BleServiceListen
         Log.d(TAG, "disable");
         isConnected = false;
         bleManager.disconnect();
+        bleManager.close();
     }
 
     @Override
@@ -68,6 +76,14 @@ public class BleSensorManager extends ISensorManager implements BleServiceListen
     public void unregisterSensor(int sensorType) {
         enableTiSensor(sensorType, false);
         sensors.remove(sensorType);
+    }
+
+    @Override
+    public double[] patchSensorFusion(float[] values) {
+        fusedOrientation[0] = values[1] * SENSOR_FUSION_COEFF;
+        fusedOrientation[1] = values[2] * SENSOR_FUSION_COEFF;
+        fusedOrientation[2] = values[0] * SENSOR_FUSION_COEFF;
+        return fusedOrientation;
     }
 
     @Override
@@ -99,7 +115,11 @@ public class BleSensorManager extends ISensorManager implements BleServiceListen
         @SuppressWarnings("unchecked")
         final TiRangeSensors<float[], Float> sensor =
                 (TiRangeSensors<float[], Float>) TiSensors.getSensor(serviceUuid);
-        listener.onSensorChanged(BleSensor.getSensorType(serviceUuid), sensor.getData());
+
+        final int sensorType = BleSensor.getSensorType(serviceUuid);
+        final float[] values = sensor.getData();
+        calibrate(values);
+        listener.onSensorChanged(sensorType, values);
     }
 
     private void enableTiSensor(int sensorType, boolean enable) {
@@ -115,5 +135,11 @@ public class BleSensorManager extends ISensorManager implements BleServiceListen
         if (enable)
             bleManager.updateSensor(tiSensors);
         Log.d(TAG, (enable ? "enable" : "disable") + " sensor: " + tiSensors.getName());
+    }
+
+    private static void calibrate(float[] values) {
+        values[0] /= SENSOR_CALIBRATION;
+        values[1] /= SENSOR_CALIBRATION;
+        values[2] /= SENSOR_CALIBRATION;
     }
 }

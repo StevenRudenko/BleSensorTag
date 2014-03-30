@@ -60,7 +60,7 @@ public class TiMagnetometerSensor extends TiRangeSensors<float[], Float> {
     @Override
     public String getDataString() {
         final float[] data = getData();
-        return "x="+data[0]+"\ty="+data[1]+"\tz="+data[2];
+        return "x="+data[0]+"\ny="+data[1]+"\nz="+data[2];
     }
 
     @Override

@@ -15,8 +15,9 @@
 -->
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
     <item android:id="@+id/menu_lock_orientaion"
-        android:orderInCategory="1"
+        android:orderInCategory="100"
         android:title="@string/menu_lock_orientation"
+        android:icon="@drawable/ic_action_lock_orientaion_off"
         android:checkable="true"
         android:checked="true"
         android:showAsAction="always"/>

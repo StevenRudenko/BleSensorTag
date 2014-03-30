@@ -11,7 +11,7 @@ import android.widget.ExpandableListView;
 import android.widget.SimpleExpandableListAdapter;
 import android.widget.TextView;
 import sample.ble.sensortag.adapters.TiServicesAdapter;
-import sample.ble.sensortag.fusion.DemoSensorFusionActivity;
+import sample.ble.sensortag.fusion.SensorFusionActivity;
 import sample.ble.sensortag.sensor.TiSensor;
 import sample.ble.sensortag.sensor.TiSensors;
 
@@ -34,14 +34,12 @@ public class DeviceServicesActivity extends BleServiceBindingActivity
     private ExpandableListView gattServicesList;
     private TiServicesAdapter gattServiceAdapter;
 
-    private boolean isConnected = false;
-
     private TiSensor<?> activeSensor;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.gatt_services_characteristics);
+        setContentView(R.layout.device_services_activity);
 
         // Sets up UI references.
         ((TextView) findViewById(R.id.device_address)).setText(getDeviceAddress());
@@ -57,13 +55,6 @@ public class DeviceServicesActivity extends BleServiceBindingActivity
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.gatt_services, menu);
-        if (isConnected) {
-            menu.findItem(R.id.menu_connect).setVisible(false);
-            menu.findItem(R.id.menu_disconnect).setVisible(true);
-        } else {
-            menu.findItem(R.id.menu_connect).setVisible(true);
-            menu.findItem(R.id.menu_disconnect).setVisible(false);
-        }
         return true;
     }
 
@@ -72,16 +63,10 @@ public class DeviceServicesActivity extends BleServiceBindingActivity
         switch(item.getItemId()) {
             case R.id.menu_demo:
                 final Intent demoIntent = new Intent();
-                demoIntent.setClass(DeviceServicesActivity.this, DemoSensorFusionActivity.class);
-                demoIntent.putExtra(DemoSensorFusionActivity.EXTRAS_DEVICE_ADDRESS, getDeviceAddress());
+                demoIntent.setClass(DeviceServicesActivity.this, SensorFusionActivity.class);
+                demoIntent.putExtra(SensorFusionActivity.EXTRA_DEVICE_ADDRESS, getDeviceAddress());
                 startActivity(demoIntent);
                 break;
-            case R.id.menu_connect:
-                getBleService().getBleManager().connect(getBaseContext(), getDeviceAddress());
-                return true;
-            case R.id.menu_disconnect:
-                getBleService().getBleManager().disconnect();
-                return true;
             case android.R.id.home:
                 onBackPressed();
                 return true;
@@ -91,17 +76,14 @@ public class DeviceServicesActivity extends BleServiceBindingActivity
 
     @Override
     public void onConnected() {
-        isConnected = true;
         connectionState.setText(R.string.connected);
-        invalidateOptionsMenu();
     }
 
     @Override
     public void onDisconnected() {
-        isConnected = false;
         connectionState.setText(R.string.disconnected);
-        invalidateOptionsMenu();
         clearUI();
+        finish();
     }
 
     @Override

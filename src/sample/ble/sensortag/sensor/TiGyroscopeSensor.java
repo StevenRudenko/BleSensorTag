@@ -41,10 +41,20 @@ public class TiGyroscopeSensor extends TiRangeSensors<float[], Float> {
     public String getConfigUUID() {
         return UUID_CONFIG;
     }
-    //TODO: there is period service
 
     @Override
     protected byte[] getConfigValues(boolean enable) {
+        // NB: Gyroscope is special as it has a different "enable-code" from the other sensors.
+        // Gyroscope is unique in that you can enable any combination of the the 3 axes when you
+        // write to the configuration characteristic.
+        // Write 0 to turn off gyroscope,
+        //       1 to enable X axis only,
+        //       2 to enable Y axis only,
+        //       3 = X and Y,
+        //       4 = Z only,
+        //       5 = X and Z,
+        //       6 = Y and Z,
+        //       7 = X, Y and Z
         return new byte[] { (byte)(enable ? 7 : 0) };
     }
 
@@ -65,7 +75,7 @@ public class TiGyroscopeSensor extends TiRangeSensors<float[], Float> {
     @Override
     public String getDataString() {
         final float[] data = getData();
-        return "x="+data[0]+"\ty="+data[1]+"\tz="+data[2];
+        return "x="+data[0]+"\ny="+data[1]+"\nz="+data[2];
     }
 
     @Override

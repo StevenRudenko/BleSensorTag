@@ -27,6 +27,10 @@
     <string name="label_services">Services</string>
     <string name="no_data">No data</string>
 
+    <!-- -->
+    <string name="empty_scan_list">No devices found</string>
+    <string name="loading_model">Loading model...</string>
+
     <!-- Dialog strings -->
     <string name="dialog_error_no_ble">Bluetooth Low Energy technology is not supported on your device.</string>
     <string name="dialog_error_no_bluetooth">Bluetooth is not supported on your device.</string>
@@ -54,5 +58,6 @@
     <string name="menu_scan">Scan</string>
     <string name="menu_stop">Stop</string>
     <string name="menu_demo">@string/action_demo</string>
-    <string name="menu_lock_orientation">Lock orientation</string>
+    <string name="menu_lock_orientation">Lock screen rotation</string>
+    <string name="menu_unlock_orientation">Allow screen rotation</string>
 </resources>

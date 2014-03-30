@@ -9,6 +9,8 @@ public abstract class SensorFusionHelper {
     private Timer fuseTimer = null;
     private SensorFusionEngine fusionEngine = null;
 
+    private boolean isRunning = false;
+
     public void start() {
         fuseTimer = new Timer();
         fusionEngine = new SensorFusionEngine();
@@ -26,8 +28,12 @@ public abstract class SensorFusionHelper {
         }
     }
 
-    private void startSensorFusion() {
+    private synchronized void startSensorFusion() {
+        if (isRunning)
+            return;
+
         fuseTimer.scheduleAtFixedRate(fusionEngine, 0, TIMER_RATE);
+        isRunning = true;
     }
 
     public void onAccDataUpdate(float[] acc) {

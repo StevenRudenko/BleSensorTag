@@ -1,6 +1,5 @@
 package sample.ble.sensortag.fusion;
 
-import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.TextView;
@@ -8,61 +7,64 @@ import rajawali.Object3D;
 import sample.ble.sensortag.R;
 import sample.ble.sensortag.config.AppConfig;
 import sample.ble.sensortag.fusion.engine.SensorFusionHelper;
+import sample.ble.sensortag.fusion.sensors.AndroidSensorManager;
 import sample.ble.sensortag.fusion.sensors.BleSensorManager;
 import sample.ble.sensortag.fusion.sensors.ISensor;
 import sample.ble.sensortag.fusion.sensors.ISensorManager;
-import sample.ble.sensortag.gl.GlActivity;
+import sample.ble.sensortag.gl.GlFragment;
 
-/**
- * Created by steven on 10/18/13.
- */
-public class DemoSensorFusionActivity extends GlActivity implements ISensorManager.SensorEventListener {
-    @SuppressWarnings("UnusedDeclaration")
-    private final static String TAG = DemoSensorFusionActivity.class.getSimpleName();
+import java.util.Formatter;
 
-    public static final String EXTRAS_DEVICE_ADDRESS = TAG+":DEVICE_ADDRESS";
+public class SensorFusionFragment extends GlFragment implements ISensorManager.SensorEventListener {
+    public final static String TAG = SensorFusionFragment.class.getSimpleName();
+
+    public static final String EXTRA_DEVICE_ADDRESS = TAG+":DEVICE_ADDRESS";
 
     private ISensorManager sensorManager;
     private TextView viewFused;
 
     private final SensorFusionHelper sensorFusion = new SensorFusionHelper() {
         @Override
-        public void onOrientationChanged(float[] orientation) {
+        public void onOrientationChanged(final float[] orientation) {
             final Object3D model = getModel();
             if (model == null)
                 return;
 
-            model.setRotation(
-                    orientation[0] * 180 / Math.PI,
-                    orientation[1] * 180 / Math.PI,
-                    orientation[2] * 180 / Math.PI);
-            viewFused.setText("" + orientation[0]+"\n" + orientation[1]+"\n" + orientation[2]);
+            final double[] patchedOrientation = sensorManager.patchSensorFusion(orientation);
+            model.setRotation(patchedOrientation[0], patchedOrientation[1], patchedOrientation[2]);
+            getActivity().runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    viewFused.setText(String.format("%+.5f\n%+.5f\n%+.5f",
+                                      orientation[0], orientation[1], orientation[2]));
+                }
+            });
         }
     };
 
     @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        getActionBar().setTitle(R.string.title_demo_sensor_fusion);
+    public void onViewCreated(View view, Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
 
-        final Intent intent = getIntent();
-        final String deviceAddress = intent.getStringExtra(EXTRAS_DEVICE_ADDRESS);
-        sensorManager = new BleSensorManager(this, deviceAddress);
+        final Bundle args = getArguments();
+        if (args == null || !args.containsKey(EXTRA_DEVICE_ADDRESS)) {
+            sensorManager = new AndroidSensorManager(getActivity());
+        } else {
+            final String deviceAddress = args.getString(EXTRA_DEVICE_ADDRESS);
+            sensorManager = new BleSensorManager(getActivity(), deviceAddress);
+        }
         sensorManager.setListener(this);
 
-        findViewById(R.id.acc).setVisibility(View.GONE);
-        findViewById(R.id.mag).setVisibility(View.GONE);
-        findViewById(R.id.gyro).setVisibility(View.GONE);
-        viewFused = (TextView) findViewById(R.id.fused);
+        viewFused = (TextView) view.findViewById(R.id.fused);
     }
 
     @Override
     public int getContentViewId() {
-        return R.layout.demo_sensor_fusion;
+        return R.layout.sensor_fusion_fragment;
     }
 
     @Override
-    protected void onStart() {
+    public void onStart() {
         super.onStart();
 
         sensorManager.enable();
@@ -74,11 +76,11 @@ public class DemoSensorFusionActivity extends GlActivity implements ISensorManag
     }
 
     @Override
-    protected void onStop() {
+    public void onStop() {
         super.onStop();
 
-        sensorManager.disable();
         sensorFusion.stop();
+        sensorManager.disable();
     }
 
     @Override
@@ -96,5 +98,9 @@ public class DemoSensorFusionActivity extends GlActivity implements ISensorManag
                 sensorFusion.onMagDataUpdate(values);
                 break;
         }
+    }
+
+    public boolean isLocalSensorsModeEnabled() {
+        return sensorManager instanceof AndroidSensorManager;
     }
 }

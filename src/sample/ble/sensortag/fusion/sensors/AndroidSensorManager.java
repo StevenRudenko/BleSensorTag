@@ -11,6 +11,9 @@ import android.os.Looper;
 public class AndroidSensorManager extends ISensorManager implements SensorEventListener {
     private static final String TAG = AndroidSensorManager.class.getSimpleName();
 
+    private static final double SENSOR_FUSION_COEFF = -180f / Math.PI;
+    private final double[] fusedOrientation = new double[3];
+
     private final SensorManager sensorManager;
     private Handler processor = null;
 
@@ -20,7 +23,9 @@ public class AndroidSensorManager extends ISensorManager implements SensorEventL
 
     @Override
     public ISensor getSensor(int sensorType) {
-        return new AndroidSensor(sensorManager.getDefaultSensor(sensorType));
+        final AndroidSensor result = new AndroidSensor(
+                sensorManager.getDefaultSensor(sensorType));
+        return result;
     }
 
     @Override
@@ -72,5 +77,13 @@ public class AndroidSensorManager extends ISensorManager implements SensorEventL
         sensorManager.registerListener(this,
                 sensorManager.getDefaultSensor(sensorType),
                 SensorManager.SENSOR_DELAY_FASTEST, processor);
+    }
+
+    @Override
+    public double[] patchSensorFusion(float[] values) {
+        fusedOrientation[0] = values[1] * SENSOR_FUSION_COEFF;
+        fusedOrientation[1] = values[2] * SENSOR_FUSION_COEFF;
+        fusedOrientation[2] = values[0] * SENSOR_FUSION_COEFF;
+        return fusedOrientation;
     }
 }

@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <sample.ble.sensortag.gl.GLSurfaceView
+        android:id="@+id/gl"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:keepScreenOn="true"/>
+    <TextView
+        android:id="@+id/fused"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="10dp"
+        android:typeface="monospace"
+        android:gravity="right"
+        android:textAppearance="?android:textAppearanceSmall"/>
+    <LinearLayout
+        android:id="@+id/loading"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center">
+        <ProgressBar
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            style="@android:style/Widget.ProgressBar.Small"/>
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="8dp"
+            android:text="@string/loading_model"
+            android:textColor="@android:color/darker_gray"
+            android:textAppearance="?android:textAppearanceMedium"/>
+    </LinearLayout>
+</FrameLayout>

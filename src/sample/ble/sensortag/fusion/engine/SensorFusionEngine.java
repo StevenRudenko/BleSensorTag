@@ -1,6 +1,6 @@
 /************************************************************************************
  * Copyright (c) 2012 Paul Lawitzki
- *               2013 Steven Rudenko
+ *               2014 Steven Rudenko
  *
  * Permission is hereby granted, free of charge, to any person obtaining
  * a copy of this software and associated documentation files (the "Software"),

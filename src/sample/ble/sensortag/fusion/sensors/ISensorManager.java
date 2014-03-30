@@ -21,4 +21,6 @@ public abstract class ISensorManager {
     public abstract void registerSensor(int sensorType);
 
     public abstract void unregisterSensor(int sensorType);
+
+    public abstract double[] patchSensorFusion(float[] values);
 }

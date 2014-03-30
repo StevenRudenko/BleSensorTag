@@ -1,7 +1,6 @@
 package sample.ble.sensortag.sensor;
 
 import android.bluetooth.BluetoothGattCharacteristic;
-
 import sample.ble.sensortag.ble.BleGattExecutor;
 
 import static android.bluetooth.BluetoothGattCharacteristic.FORMAT_SINT8;
@@ -62,7 +61,7 @@ public class TiAccelerometerSensor extends TiRangeSensors<float[], Float> {
     @Override
     public String getDataString() {
         final float[] data = getData();
-        return "x="+data[0]+"\ty="+data[1]+"\tz="+data[2];
+        return "x="+data[0]+"\ny="+data[1]+"\nz="+data[2];
     }
 
     @Override

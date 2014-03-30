@@ -36,7 +36,7 @@ public class TiTemperatureSensor extends TiSensor<float[]> {
     @Override
     public String getDataString() {
         final float[] data = getData();
-        return "ambient="+data[0]+"\ttarget="+data[1];
+        return "ambient="+data[0]+"\ntarget="+data[1];
     }
 
     @Override

@@ -12,11 +12,11 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.ListView;
 import sample.ble.sensortag.adapters.BleDevicesAdapter;
-import sample.ble.sensortag.fusion.LocalSensorFusionActivity;
-import sample.ble.sensortag.dialogs.EnableBluetoothDialog;
-import sample.ble.sensortag.dialogs.ErrorDialog;
 import sample.ble.sensortag.ble.BleDevicesScanner;
 import sample.ble.sensortag.ble.BleUtils;
+import sample.ble.sensortag.dialogs.EnableBluetoothDialog;
+import sample.ble.sensortag.dialogs.ErrorDialog;
+import sample.ble.sensortag.fusion.SensorFusionActivity;
 
 /**
  * Activity for scanning and displaying available Bluetooth LE devices.
@@ -36,6 +36,10 @@ public class DeviceScanActivity extends ListActivity
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setTitle(R.string.title_devices);
+
+        setContentView(R.layout.device_scan_activity);
+        final View emptyView = findViewById(R.id.empty_view);
+        getListView().setEmptyView(emptyView);
 
         final int bleStatus = BleUtils.getBleStatus(getBaseContext());
         switch (bleStatus) {
@@ -71,7 +75,7 @@ public class DeviceScanActivity extends ListActivity
             menu.findItem(R.id.menu_stop).setVisible(true);
             menu.findItem(R.id.menu_scan).setVisible(false);
             menu.findItem(R.id.menu_refresh).setActionView(
-                    R.layout.actionbar_indeterminate_progress);
+                    R.layout.ab_indeterminate_progress);
         }
         return true;
     }
@@ -91,7 +95,8 @@ public class DeviceScanActivity extends ListActivity
                 invalidateOptionsMenu();
                 break;
             case R.id.menu_demo:
-                final Intent demoIntent = new Intent(getBaseContext(), LocalSensorFusionActivity.class);
+                final Intent demoIntent = new Intent(
+                        getBaseContext(), SensorFusionActivity.class);
                 startActivity(demoIntent);
                 break;
         }
