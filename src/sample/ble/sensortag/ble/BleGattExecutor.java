@@ -15,8 +15,15 @@ import sample.ble.sensortag.sensor.TiSensor;
  */
 public class BleGattExecutor extends BluetoothGattCallback {
 
-    public interface ServiceAction {
-        public static final ServiceAction NULL = new ServiceAction() {
+    public static abstract class ServiceAction {
+        public enum ActionType {
+            NONE,
+            READ,
+            NOTIFY,
+            WRITE
+        }
+
+        public static final ServiceAction NULL = new ServiceAction(ActionType.NONE) {
             @Override
             public boolean execute(BluetoothGatt bluetoothGatt) {
                 // it is null action. do nothing.
@@ -24,13 +31,23 @@ public class BleGattExecutor extends BluetoothGattCallback {
             }
         };
 
+        private final ActionType type;
+
+        public ServiceAction(ActionType type) {
+            this.type = type;
+        }
+
+        public ActionType getType() {
+            return type;
+        }
+
         /***
          * Executes action.
          * @param bluetoothGatt
          * @return true - if action was executed instantly. false if action is waiting for
          *         feedback.
          */
-        public boolean execute(BluetoothGatt bluetoothGatt);
+        public abstract boolean execute(BluetoothGatt bluetoothGatt);
     }
 
     private final LinkedList<BleGattExecutor.ServiceAction> queue = new LinkedList<ServiceAction>();
@@ -67,6 +84,10 @@ public class BleGattExecutor extends BluetoothGattCallback {
     public void onDescriptorWrite(BluetoothGatt gatt, BluetoothGattDescriptor descriptor, int status) {
         super.onDescriptorWrite(gatt, descriptor, status);
 
+        // wait for onCharacteristicWrite for write action before execution of any other actions
+        if (currentAction != null && currentAction.getType() == ServiceAction.ActionType.WRITE)
+            return;
+
         currentAction = null;
         execute(gatt);
     }
@@ -80,17 +101,21 @@ public class BleGattExecutor extends BluetoothGattCallback {
     }
 
     @Override
+    public void onCharacteristicRead(BluetoothGatt gatt,
+                                     BluetoothGattCharacteristic characteristic,
+                                     int status) {
+        // wait for onCharacteristicWrite for write action before execution of any other actions
+        if (currentAction != null && currentAction.getType() == ServiceAction.ActionType.WRITE)
+            return;
+
+        currentAction = null;
+        execute(gatt);
+    }
+
+    @Override
     public void onConnectionStateChange(BluetoothGatt gatt, int status, int newState) {
         if (newState == BluetoothProfile.STATE_DISCONNECTED) {
             queue.clear();
         }
-    }
-
-    @Override
-    public void onCharacteristicRead(BluetoothGatt gatt,
-                                     BluetoothGattCharacteristic characteristic,
-                                     int status) {
-        currentAction = null;
-        execute(gatt);
     }
 }
