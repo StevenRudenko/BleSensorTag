@@ -9,6 +9,10 @@ import static java.lang.Math.pow;
  */
 public class TiTemperatureSensor extends TiSensor<float[]> {
 
+    private static final String UUID_SERVICE = "f000aa00-0451-4000-b000-000000000000";
+    private static final String UUID_DATA = "f000aa01-0451-4000-b000-000000000000";
+    private static final String UUID_CONFIG = "f000aa02-0451-4000-b000-000000000000";
+
     TiTemperatureSensor() {
         super();
     }
@@ -20,17 +24,17 @@ public class TiTemperatureSensor extends TiSensor<float[]> {
 
     @Override
     public String getServiceUUID() {
-        return "f000aa00-0451-4000-b000-000000000000";
+        return UUID_SERVICE;
     }
 
     @Override
     public String getDataUUID() {
-        return "f000aa01-0451-4000-b000-000000000000";
+        return UUID_DATA;
     }
 
     @Override
     public String getConfigUUID() {
-        return "f000aa02-0451-4000-b000-000000000000";
+        return UUID_CONFIG;
     }
 
     @Override

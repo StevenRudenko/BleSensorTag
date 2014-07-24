@@ -8,11 +8,13 @@ import android.bluetooth.BluetoothGattService;
 import java.util.UUID;
 
 import sample.ble.sensortag.ble.BleGattExecutor;
+import sample.ble.sensortag.ble.BleGattExecutor.ServiceAction.ActionType;
 
 /**
  * Created by steven on 9/3/13.
  */
 public abstract class TiSensor<T> {
+    @SuppressWarnings("UnusedDeclaration")
     private final static String TAG = TiSensor.class.getSimpleName();
 
     private static String CHARACTERISTIC_CONFIG = "00002902-0000-1000-8000-00805f9b34fb";
@@ -25,9 +27,9 @@ public abstract class TiSensor<T> {
     public abstract String getName();
 
     public String getCharacteristicName(String uuid) {
-        if (getDataUUID().equals(uuid))
+        if (uuid.equals(getDataUUID()))
             return getName() + " Data";
-        else if (getConfigUUID().equals(uuid))
+        else if (uuid.equals(getConfigUUID()))
             return getName() + " Config";
         return "Unknown";
     }
@@ -72,7 +74,7 @@ public abstract class TiSensor<T> {
     }
 
     public BleGattExecutor.ServiceAction read(final String uuid) {
-        return new BleGattExecutor.ServiceAction() {
+        return new BleGattExecutor.ServiceAction(ActionType.READ) {
             @Override
             public boolean execute(BluetoothGatt bluetoothGatt) {
                 final BluetoothGattCharacteristic characteristic = getCharacteristic(bluetoothGatt, uuid);
@@ -83,7 +85,7 @@ public abstract class TiSensor<T> {
     }
 
     public BleGattExecutor.ServiceAction write(final String uuid, final byte[] value) {
-        return new BleGattExecutor.ServiceAction() {
+        return new BleGattExecutor.ServiceAction(ActionType.WRITE) {
             @Override
             public boolean execute(BluetoothGatt bluetoothGatt) {
                 final BluetoothGattCharacteristic characteristic = getCharacteristic(bluetoothGatt, uuid);
@@ -95,7 +97,7 @@ public abstract class TiSensor<T> {
     }
 
     public BleGattExecutor.ServiceAction notify(final boolean start) {
-        return new BleGattExecutor.ServiceAction() {
+        return new BleGattExecutor.ServiceAction(ActionType.NOTIFY) {
             @Override
             public boolean execute(BluetoothGatt bluetoothGatt) {
                 final UUID CCC = UUID.fromString(CHARACTERISTIC_CONFIG);

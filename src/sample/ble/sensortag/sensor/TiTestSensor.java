@@ -9,6 +9,10 @@ import sample.ble.sensortag.ble.BleGattExecutor;
  */
 public class TiTestSensor extends TiSensor<Void> {
 
+    private static final String UUID_SERVICE = "f000aa60-0451-4000-b000-000000000000";
+    private static final String UUID_DATA = "f000aa61-0451-4000-b000-000000000000";
+    private static final String UUID_CONFIG = "f000aa62-0451-4000-b000-000000000000";
+
     TiTestSensor() {
         super();
     }
@@ -20,17 +24,17 @@ public class TiTestSensor extends TiSensor<Void> {
 
     @Override
     public String getServiceUUID() {
-        return "f000aa60-0451-4000-b000-000000000000";
+        return UUID_SERVICE;
     }
 
     @Override
     public String getDataUUID() {
-        return "f000aa61-0451-4000-b000-000000000000";
+        return UUID_DATA;
     }
 
     @Override
     public String getConfigUUID() {
-        return "f000aa62-0451-4000-b000-000000000000";
+        return UUID_CONFIG;
     }
 
     @Override

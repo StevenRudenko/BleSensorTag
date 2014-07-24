@@ -11,6 +11,10 @@ import sample.ble.sensortag.ble.BleGattExecutor;
  */
 public class TiKeysSensor extends TiSensor<TiKeysSensor.SimpleKeysStatus> {
 
+    private static final String UUID_SERVICE = "0000ffe0-0451-4000-b000-000000000000";
+    private static final String UUID_DATA = "0000ffe1-0451-4000-b000-000000000000";
+    private static final String UUID_CONFIG = null;
+
     public enum SimpleKeysStatus {
         // Warning: The order in which these are defined matters.
         OFF_OFF, OFF_ON, ON_OFF, ON_ON;
@@ -27,19 +31,18 @@ public class TiKeysSensor extends TiSensor<TiKeysSensor.SimpleKeysStatus> {
 
     @Override
     public String getServiceUUID() {
-        return "0000ffe0-0000-1000-8000-00805f9b34fb";
+        return UUID_SERVICE;
     }
 
     @Override
     public String getDataUUID() {
-        return "0000ffe1-0000-1000-8000-00805f9b34fb";
+        return UUID_DATA;
     }
 
     @Override
     public String getConfigUUID() {
-        return null;
+        return UUID_CONFIG;
     }
-
 
     @Override
     public BleGattExecutor.ServiceAction[] enable(boolean enable) {
