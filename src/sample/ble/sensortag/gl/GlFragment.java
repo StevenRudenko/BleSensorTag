@@ -54,6 +54,8 @@ public abstract class GlFragment extends Fragment implements ModelLoader.OnModel
     public void onModeLoaded(final Object3D model) {
         if (isDetached())
             return;
+        if (getActivity() == null)
+            return;
 
         getActivity().runOnUiThread(new Runnable() {
             @Override
