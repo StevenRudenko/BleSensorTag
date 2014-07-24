@@ -56,12 +56,15 @@ public class DeviceServicesActivity extends BleServiceBindingActivity
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.gatt_services, menu);
+        final String deviceName = getDeviceName();
+        if (deviceName != null) {
+            getMenuInflater().inflate(R.menu.gatt_services, menu);
 
-        // enable demo for SensorTag device only
-        menu.findItem(R.id.menu_demo).setEnabled(
-                getDeviceName().startsWith(AppConfig.BLE_DEVICE_NAME));
+            // enable demo for SensorTag device only
+            menu.findItem(R.id.menu_demo).setEnabled(
+                    deviceName.startsWith(AppConfig.BLE_DEVICE_NAME));
 
+        }
         return true;
     }
 

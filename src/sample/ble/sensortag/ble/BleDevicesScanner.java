@@ -20,7 +20,11 @@ public class BleDevicesScanner implements Runnable, BluetoothAdapter.LeScanCallb
     private volatile boolean isScanning = false;
 
     public BleDevicesScanner(BluetoothAdapter adapter, BluetoothAdapter.LeScanCallback callback) {
+        if (adapter == null)
+            throw new IllegalArgumentException("Adapter should not be null");
+
         bluetoothAdapter = adapter;
+
         leScansPoster = new LeScansPoster(callback);
     }
 

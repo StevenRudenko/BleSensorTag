@@ -54,6 +54,9 @@ public class DeviceScanActivity extends ListActivity
                 bluetoothAdapter = BleUtils.getBluetoothAdapter(getBaseContext());
         }
 
+        if (bluetoothAdapter == null)
+            return;
+
         // initialize scanner
         scanner = new BleDevicesScanner(bluetoothAdapter, new BluetoothAdapter.LeScanCallback() {
             @Override
@@ -144,9 +147,8 @@ public class DeviceScanActivity extends ListActivity
     protected void onPause() {
         super.onPause();
 
-        if (scanner != null) {
+        if (scanner != null)
             scanner.stop();
-        }
     }
 
     @Override
