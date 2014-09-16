@@ -28,6 +28,7 @@ Please read official [SensorTag User Guide][2] for more information about Sensor
 ## Troubleshooting
 If you have problems with TI Sensor Tag services detection or any sensor doesn't work you should try to update [firmware of SensorTag](http://processors.wiki.ti.com/index.php/SensorTag_Firmware)
 
+Also you can take a look on [TI open source project for SensorTag](http://git.ti.com/sensortag-android).
 
 -------------------------------------------------------------------------------
 
