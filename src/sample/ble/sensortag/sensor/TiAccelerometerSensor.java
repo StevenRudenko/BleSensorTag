@@ -1,27 +1,34 @@
 package sample.ble.sensortag.sensor;
 
+import com.chimeraiot.android.ble.BleGattExecutor;
+
 import android.bluetooth.BluetoothGattCharacteristic;
-import sample.ble.sensortag.ble.BleGattExecutor;
+import android.os.Bundle;
+import android.util.Log;
 
 import static android.bluetooth.BluetoothGattCharacteristic.FORMAT_SINT8;
 
-/**
- * Created by steven on 9/3/13.
- */
-public class TiAccelerometerSensor extends TiRangeSensors<float[], Float> {
-
+/** TI accelerometer sensor. */
+public class TiAccelerometerSensor extends TiRangeSensors<TiSensorTag, Float> {
+    /** Service UUID. */
     public static final String UUID_SERVICE = "f000aa10-0451-4000-b000-000000000000";
+    /** Data UUID. */
     private static final String UUID_DATA = "f000aa11-0451-4000-b000-000000000000";
+    /** Configuration UUID. */
     private static final String UUID_CONFIG = "f000aa12-0451-4000-b000-000000000000";
+    /** Period UUID. */
     private static final String UUID_PERIOD = "f000aa13-0451-4000-b000-000000000000";
 
-    private static final int PERIOD_MIN = 10;
-    private static final int PERIOD_MAX = 255;
+    /** Min period value. */
+    public static final int PERIOD_MIN = 1;
+    /** Max period value. */
+    public static final int PERIOD_MAX = 255;
 
+    /** Period. */
     private int period = 100;
 
-    TiAccelerometerSensor() {
-        super();
+    TiAccelerometerSensor(TiSensorTag model) {
+        super(model);
     }
 
     @Override
@@ -45,22 +52,32 @@ public class TiAccelerometerSensor extends TiRangeSensors<float[], Float> {
     }
 
     @Override
+    public String getPeriodUUID() {
+        return UUID_PERIOD;
+    }
+
+    @Override
     public boolean isConfigUUID(String uuid) {
-        if (uuid.equals(UUID_PERIOD))
+        //noinspection SimplifiableIfStatement
+        if (uuid.equals(UUID_PERIOD)) {
             return true;
+        }
         return super.isConfigUUID(uuid);
     }
 
     @Override
     public String getCharacteristicName(String uuid) {
-        if (UUID_PERIOD.equals(uuid))
-            return getName() + " Period";
-        return super.getCharacteristicName(uuid);
+        switch (uuid) {
+            case UUID_PERIOD:
+                return "Period";
+            default:
+                return super.getCharacteristicName(uuid);
+        }
     }
 
     @Override
     public String getDataString() {
-        final float[] data = getData();
+        final float[] data = getData().getAccel();
         return TiSensorUtils.coordinatesToString(data);
     }
 
@@ -90,44 +107,57 @@ public class TiAccelerometerSensor extends TiRangeSensors<float[], Float> {
     }
 
     @Override
-    public BleGattExecutor.ServiceAction update() {
-        return write(UUID_PERIOD, new byte[]{(byte) period});
+    public BleGattExecutor.ServiceAction[] update(String uuid, Bundle data) {
+        switch (uuid) {
+            case UUID_PERIOD:
+                return new BleGattExecutor.ServiceAction[]{
+                        write(uuid, new byte[]{(byte) period})
+                };
+            case UUID_CONFIG:
+                return new BleGattExecutor.ServiceAction[]{
+                        write(uuid, new byte[] {
+                                (byte)(isEnabled() ? 1 : 0)
+                        })
+                };
+            default:
+                return super.update(uuid, data);
+        }
     }
 
     @Override
-    public boolean onCharacteristicRead(BluetoothGattCharacteristic c) {
-        super.onCharacteristicRead(c);
+    protected boolean apply(BluetoothGattCharacteristic c, TiSensorTag data) {
+        final String uuid = c.getUuid().toString();
+        switch (uuid) {
+            case UUID_PERIOD:
+                period = TiSensorUtils.shortUnsignedAtOffset(c, 0);
+                return true;
+            case UUID_DATA:
+                /*
+                 * The accelerometer has the range [-2g, 2g] with unit (1/64)g.
+                 *
+                 * To convert from unit (1/64)g to unit g we divide by 64.
+                 *
+                 * (g = 9.81 m/s^2)
+                 *
+                 * The z value is multiplied with -1 to coincide
+                 * with how we have arbitrarily defined the positive y direction.
+                 * (illustrated by the apps accelerometer image)
+                 */
+                Integer x = c.getIntValue(FORMAT_SINT8, 0);
+                Integer y = c.getIntValue(FORMAT_SINT8, 1);
+                Integer z = -1 * c.getIntValue(FORMAT_SINT8, 2);
 
-        if ( !c.getUuid().toString().equals(UUID_PERIOD) )
-            return false;
-
-        period = TiSensorUtils.shortUnsignedAtOffset(c, 0);
-        return true;
-    }
-
-    @Override
-    public float[] parse(final BluetoothGattCharacteristic c) {
-    /*
-     * The accelerometer has the range [-2g, 2g] with unit (1/64)g.
-     *
-     * To convert from unit (1/64)g to unit g we divide by 64.
-     *
-     * (g = 9.81 m/s^2)
-     *
-     * The z value is multiplied with -1 to coincide
-     * with how we have arbitrarily defined the positive y direction.
-     * (illustrated by the apps accelerometer image)
-     * */
-
-        Integer x = c.getIntValue(FORMAT_SINT8, 0);
-        Integer y = c.getIntValue(FORMAT_SINT8, 1);
-        Integer z = -1 * c.getIntValue(FORMAT_SINT8, 2);
-
-        double scaledX = x / 64.0;
-        double scaledY = y / 64.0;
-        double scaledZ = z / 64.0;
-
-        return new float[]{(float)scaledX, (float)scaledY, (float)scaledZ};
+                double scaledX = x / 64.0;
+                double scaledY = y / 64.0;
+                double scaledZ = z / 64.0;
+                final float[] values = data.getAccel();
+                values[0] = (float) scaledX;
+                values[1] = (float) scaledY;
+                values[2] = (float) scaledZ;
+                return true;
+            default:
+                return false;
+        }
     }
 
 }

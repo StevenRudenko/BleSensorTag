@@ -1,37 +1,44 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    tools:context=".fusion.SensorFusionActivity"
+    tools:showIn="@layout/sensor_fusion_activity">
 
     <sample.ble.sensortag.gl.GLSurfaceView
         android:id="@+id/gl"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:keepScreenOn="true"/>
+        android:keepScreenOn="true" />
+
     <TextView
         android:id="@+id/fused"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_margin="10dp"
-        android:gravity="right"
-        android:textAppearance="@style/CodeTextAppearance"/>
+        android:gravity="right|end"
+        android:textAppearance="@style/CodeTextAppearance" />
+
     <LinearLayout
         android:id="@+id/loading"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center">
+
         <ProgressBar
+            style="@android:style/Widget.ProgressBar.Small"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="center_vertical"
-            style="@android:style/Widget.ProgressBar.Small"/>
+            android:layout_gravity="center_vertical" />
+
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginLeft="8dp"
             android:text="@string/loading_model"
-            android:textColor="@android:color/darker_gray"
-            android:textAppearance="?android:textAppearanceMedium"/>
+            android:textAppearance="?android:textAppearanceMedium"
+            android:textColor="@android:color/darker_gray" />
     </LinearLayout>
+
 </FrameLayout>

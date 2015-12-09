@@ -1,39 +1,61 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical"
+<android.support.design.widget.CoordinatorLayout android:id="@+id/main_root"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
-    <TextView
-        android:id="@+id/data_value"
+    android:layout_height="match_parent"
+    android:fitsSystemWindows="true"
+    tools:context=".ui.DeviceServicesActivity">
+
+    <android.support.design.widget.AppBarLayout
+        android:id="@+id/app_bar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_margin="10dp"
-        android:textAppearance="@style/CodeTextAppearance"
-        android:text="@string/no_data"
-        android:minLines="3"/>
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="@string/label_services"
-        android:paddingTop="4dp"
-        android:paddingBottom="4dp"
-        android:paddingLeft="10dp"
-        android:paddingRight="10dp"
-        android:textStyle="bold"
-        android:textAppearance="?android:textAppearanceMedium"
-        android:background="@android:drawable/divider_horizontal_bright" />
-    <FrameLayout
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1">
-        <ExpandableListView
-            android:id="@+id/gatt_services_list"
+        android:theme="@style/AppTheme.AppBarOverlay">
+
+        <android.support.v7.widget.Toolbar
+            android:id="@+id/toolbar"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:groupIndicator="@null"/>
+            android:layout_height="?attr/actionBarSize"
+            android:background="?attr/colorPrimary"
+            app:popupTheme="@style/AppTheme.PopupOverlay"
+            app:title="Device name" />
+
         <TextView
-            android:id="@+id/empty_view"
-            style="@style/NullTextAppearance"
-            android:text="@string/empty_services_list"/>
-    </FrameLayout>
-</LinearLayout>
+            android:id="@+id/data_characteristic_uuid"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="16dp"
+            android:layout_marginRight="16dp"
+            android:text="@string/no_data_characteristic"
+            android:textAppearance="@style/CodeTextAppearance"
+            android:textColor="?actionMenuTextColor" />
+
+        <TextView
+            android:id="@+id/data_characteristic_value"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="16dp"
+            android:layout_marginRight="16dp"
+            android:layout_marginBottom="8dp"
+            android:textAppearance="@style/CodeTextAppearance"
+            android:textColor="?actionMenuTextColor" />
+
+    </android.support.design.widget.AppBarLayout>
+
+    <ExpandableListView
+        android:id="@+id/gatt_services_list"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:groupIndicator="@null"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior"/>
+
+    <ProgressBar
+        android:id="@+id/empty_view"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        style="?progressBarStyle"
+        android:layout_gravity="center" />
+
+</android.support.design.widget.CoordinatorLayout>

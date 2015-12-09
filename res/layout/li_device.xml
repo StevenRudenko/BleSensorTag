@@ -2,31 +2,37 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:paddingTop="4dp"
+    android:minHeight="?listPreferredItemHeight"
     android:paddingBottom="4dp"
+    android:paddingLeft="10dp"
     android:paddingRight="10dp"
-    android:paddingLeft="10dp">
+    android:paddingTop="4dp">
+
     <TextView
         android:id="@+id/device_rssi"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentRight="true"
-        android:layout_centerVertical="true"/>
+        android:layout_centerVertical="true" />
 
     <LinearLayout
-        android:orientation="vertical"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_toLeftOf="@id/device_rssi">
+        android:layout_centerVertical="true"
+        android:layout_toLeftOf="@id/device_rssi"
+        android:orientation="vertical">
+
         <TextView
             android:id="@+id/device_name"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:textAppearance="?android:textAppearanceMedium"/>
+            android:textAppearance="?android:textAppearanceMedium" />
+
         <TextView
             android:id="@+id/device_address"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:textAppearance="@style/CodeTextAppearance"/>
+            android:textAppearance="@style/CodeTextAppearance" />
     </LinearLayout>
+
 </RelativeLayout>

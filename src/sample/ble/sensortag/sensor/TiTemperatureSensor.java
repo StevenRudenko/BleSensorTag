@@ -4,17 +4,17 @@ import android.bluetooth.BluetoothGattCharacteristic;
 
 import static java.lang.Math.pow;
 
-/**
- * Created by steven on 9/3/13.
- */
-public class TiTemperatureSensor extends TiSensor<float[]> {
-
+/** TI temperature sensor. */
+public class TiTemperatureSensor extends TiSensor<TiSensorTag> {
+    /** Service UUID. */
     private static final String UUID_SERVICE = "f000aa00-0451-4000-b000-000000000000";
+    /** Data UUID. */
     private static final String UUID_DATA = "f000aa01-0451-4000-b000-000000000000";
+    /** Configuration UUID. */
     private static final String UUID_CONFIG = "f000aa02-0451-4000-b000-000000000000";
 
-    TiTemperatureSensor() {
-        super();
+    TiTemperatureSensor(TiSensorTag model) {
+        super(model);
     }
 
     @Override
@@ -39,27 +39,29 @@ public class TiTemperatureSensor extends TiSensor<float[]> {
 
     @Override
     public String getDataString() {
-        final float[] data = getData();
-        return "ambient="+data[0]+"\ntarget="+data[1];
+        final float[] data = getData().getTemp();
+        return "ambient=" + data[0] + "\ntarget=" + data[1];
     }
 
     @Override
-    public float[] parse(BluetoothGattCharacteristic c) {
-
-    /* The IR Temperature sensor produces two measurements;
-     * Object ( AKA target or IR) Temperature,
-     * and Ambient ( AKA die ) temperature.
-     *
-     * Both need some conversion, and Object temperature is dependent on Ambient temperature.
-     *
-     * They are stored as [ObjLSB, ObjMSB, AmbLSB, AmbMSB] (4 bytes)
-     * Which means we need to shift the bytes around to get the correct values.
-     */
+    protected boolean apply(final BluetoothGattCharacteristic c, final TiSensorTag data) {
+        /* The IR Temperature sensor produces two measurements;
+         * Object ( AKA target or IR) Temperature,
+         * and Ambient ( AKA die ) temperature.
+         *
+         * Both need some conversion, and Object temperature is dependent on Ambient temperature.
+         *
+         * They are stored as [ObjLSB, ObjMSB, AmbLSB, AmbMSB] (4 bytes)
+         * Which means we need to shift the bytes around to get the correct values.
+         */
 
         double ambient = extractAmbientTemperature(c);
         double target = extractTargetTemperature(c, ambient);
 
-        return new float[]{(float)ambient, (float)target};
+        final float[] values = getData().getTemp();
+        values[0] = (float) ambient;
+        values[1] = (float) target;
+        return true;
     }
 
     private static double extractAmbientTemperature(BluetoothGattCharacteristic c) {

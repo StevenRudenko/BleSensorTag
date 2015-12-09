@@ -1,26 +1,32 @@
 package sample.ble.sensortag.sensor;
 
+import com.chimeraiot.android.ble.BleGattExecutor;
+
 import android.bluetooth.BluetoothGattCharacteristic;
+import android.os.Bundle;
 
-import sample.ble.sensortag.ble.BleGattExecutor;
+/** TI magnetometer sensor. */
+public class TiMagnetometerSensor extends TiRangeSensors<TiSensorTag, Float> {
 
-/**
- * Created by steven on 9/3/13.
- */
-public class TiMagnetometerSensor extends TiRangeSensors<float[], Float> {
-
+    /** Service UUID. */
     public static final String UUID_SERVICE = "f000aa30-0451-4000-b000-000000000000";
+    /** Data UUID. */
     private static final String UUID_DATA = "f000aa31-0451-4000-b000-000000000000";
+    /** Configuration UUID. */
     private static final String UUID_CONFIG = "f000aa32-0451-4000-b000-000000000000";
+    /** Period UUID. */
     private static final String UUID_PERIOD = "f000aa33-0451-4000-b000-000000000000";
 
-    private static final int PERIOD_MIN = 10;
-    private static final int PERIOD_MAX = 255;
+    /** Min period value. */
+    public static final int PERIOD_MIN = 1;
+    /** Max period value. */
+    public static final int PERIOD_MAX = 255;
 
+    /** Period. */
     private int period = 200;
 
-    TiMagnetometerSensor() {
-        super();
+    TiMagnetometerSensor(TiSensorTag model) {
+        super(model);
     }
 
     @Override
@@ -44,22 +50,32 @@ public class TiMagnetometerSensor extends TiRangeSensors<float[], Float> {
     }
 
     @Override
+    public String getPeriodUUID() {
+        return UUID_PERIOD;
+    }
+
+    @Override
     public boolean isConfigUUID(String uuid) {
-        if (uuid.equals(UUID_PERIOD))
+        //noinspection SimplifiableIfStatement
+        if (uuid.equals(UUID_PERIOD)) {
             return true;
+        }
         return super.isConfigUUID(uuid);
     }
 
     @Override
     public String getCharacteristicName(String uuid) {
-        if (UUID_PERIOD.equals(uuid))
-            return getName() + " Period";
-        return super.getCharacteristicName(uuid);
+        switch (uuid) {
+            case UUID_PERIOD:
+                return "Period";
+            default:
+                return super.getCharacteristicName(uuid);
+        }
     }
 
     @Override
     public String getDataString() {
-        final float[] data = getData();
+        final float[] data = getData().getMagnet();
         return TiSensorUtils.coordinatesToString(data);
     }
 
@@ -89,18 +105,44 @@ public class TiMagnetometerSensor extends TiRangeSensors<float[], Float> {
     }
 
     @Override
-    public BleGattExecutor.ServiceAction update() {
-        return write(UUID_PERIOD, new byte[]{(byte) period});
+    public BleGattExecutor.ServiceAction[] update(final String uuid, final Bundle data) {
+        switch (uuid) {
+            case UUID_PERIOD:
+                return new BleGattExecutor.ServiceAction[]{
+                        write(uuid, new byte[]{(byte) period})
+                };
+            case UUID_CONFIG:
+                return new BleGattExecutor.ServiceAction[]{
+                        write(uuid, new byte[]{
+                                (byte) (isEnabled() ? 1 : 0)
+                        })
+                };
+            default:
+                return super.update(uuid, data);
+        }
     }
 
     @Override
-    public float[] parse(BluetoothGattCharacteristic c) {
-        // Multiply x and y with -1 so that the values correspond with our pretty pictures in the app.
-        float x = TiSensorUtils.shortSignedAtOffset(c, 0) * (2000f / 65536f) * -1;
-        float y = TiSensorUtils.shortSignedAtOffset(c, 2) * (2000f / 65536f) * -1;
-        float z = TiSensorUtils.shortSignedAtOffset(c, 4) * (2000f / 65536f);
+    protected boolean apply(final BluetoothGattCharacteristic c, final TiSensorTag data) {
+        final String uuid = c.getUuid().toString();
+        switch (uuid) {
+            case UUID_PERIOD:
+                period = TiSensorUtils.shortUnsignedAtOffset(c, 0);
+                return true;
+            case UUID_DATA:
+                // Multiply x and y with -1 so that the values correspond with our pretty pictures in the app.
+                float x = TiSensorUtils.shortSignedAtOffset(c, 0) * (2000f / 65536f) * -1;
+                float y = TiSensorUtils.shortSignedAtOffset(c, 2) * (2000f / 65536f) * -1;
+                float z = TiSensorUtils.shortSignedAtOffset(c, 4) * (2000f / 65536f);
 
-        return new float[]{x, y, z};
+                final float[] values = data.getMagnet();
+                values[0] = x;
+                values[1] = y;
+                values[2] = z;
+                return true;
+            default:
+                return false;
+        }
     }
 
 }

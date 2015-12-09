@@ -1,29 +1,37 @@
 package sample.ble.sensortag;
 
+import com.chimeraiot.android.ble.BleManager;
+import com.chimeraiot.android.ble.BleScanCompat;
+import com.chimeraiot.android.ble.BleService;
+import com.chimeraiot.android.ble.BleUtils;
+
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.content.Intent;
 import android.util.Log;
 import android.widget.Toast;
-import sample.ble.sensortag.ble.BleDevicesScanner;
-import sample.ble.sensortag.ble.BleUtils;
+
 import sample.ble.sensortag.config.AppConfig;
 import sample.ble.sensortag.sensor.TiAccelerometerSensor;
 import sample.ble.sensortag.sensor.TiSensor;
-import sample.ble.sensortag.sensor.TiSensors;
 
+/** Record sensor data exmaple service. */
 public class BleSensorsRecordService extends BleService {
+    /** Log tag. */
     private static final String TAG = BleSensorsRecordService.class.getSimpleName();
 
+    /** Record device name. */
     private static final String RECORD_DEVICE_NAME = "SensorTag";
+    /** Sensor UUID. Used to listen for updates. */
+    private static final String SENSOR_TO_READ = TiAccelerometerSensor.UUID_SERVICE;
 
-    private final TiSensor<?> sensorToRead = TiSensors.getSensor(TiAccelerometerSensor.UUID_SERVICE);
-    private BleDevicesScanner scanner;
+    /** BLE device scanner. */
+    private BleScanCompat scanner;
 
     @Override
     public void onCreate() {
         super.onCreate();
-
+        //noinspection PointlessBooleanExpression
         if (!AppConfig.ENABLE_RECORD_SERVICE) {
             stopSelf();
             return;
@@ -43,18 +51,25 @@ public class BleSensorsRecordService extends BleService {
                 break;
         }
 
-        if (!getBleManager().initialize(getBaseContext())) {
-            stopSelf();
-            return;
-        }
-
         // initialize scanner
         final BluetoothAdapter bluetoothAdapter = BleUtils.getBluetoothAdapter(getBaseContext());
-        scanner = new BleDevicesScanner(bluetoothAdapter, new BluetoothAdapter.LeScanCallback() {
+        scanner = new BleScanCompat(bluetoothAdapter, new BleScanCompat.BleDevicesScannerListener() {
             @Override
-            public void onLeScan(BluetoothDevice device, int rssi, byte[] scanRecord) {
+            public void onScanStarted() {
+            }
+
+            @Override
+            public void onScanRepeat() {
+            }
+
+            @Override
+            public void onScanStopped() {
+            }
+
+            @Override
+            public void onLeScan(BluetoothDevice device, int i, byte[] bytes) {
                 Log.d(TAG, "Device discovered: " + device.getName());
-                if (RECORD_DEVICE_NAME.equals(RECORD_DEVICE_NAME)) {
+                if (RECORD_DEVICE_NAME.equals(device.getName())) {
                     scanner.stop();
                     getBleManager().connect(getBaseContext(), device.getAddress());
                 }
@@ -62,6 +77,11 @@ public class BleSensorsRecordService extends BleService {
         });
 
         setServiceListener(this);
+    }
+
+    @Override
+    protected BleManager createBleManager() {
+        return new BleManager(App.DEVICE_DEF_COLLECTION);
     }
 
     @Override
@@ -83,25 +103,38 @@ public class BleSensorsRecordService extends BleService {
     }
 
     @Override
-    public void onConnected() {
+    public void onConnected(final String name, final String address) {
+        super.onConnected(name, address);
         Log.d(TAG, "Connected");
     }
 
     @Override
-    public void onDisconnected() {
+    public void onDisconnected(final String name, final String address) {
+        super.onDisconnected(name, address);
         Log.d(TAG, "Disconnected");
         scanner.start();
     }
 
     @Override
-    public void onServiceDiscovered() {
+    public void onServiceDiscovered(final String name, final String address) {
+        super.onServiceDiscovered(name, address);
         Log.d(TAG, "Service discovered");
-        enableSensor(sensorToRead, true);
+
+        final TiSensor<?> sensor = (TiSensor<?>) getBleManager().getDeviceDefCollection()
+                .get(name, address).getSensor(SENSOR_TO_READ);
+        if (sensor != null) {
+            sensor.setEnabled(true);
+            getBleManager().update(address, sensor, sensor.getConfigUUID(), null);
+            getBleManager().listen(address, sensor, sensor.getDataUUID());
+        }
     }
 
     @Override
-    public void onDataAvailable(String serviceUuid, String characteristicUUid, String text, byte[] data) {
-        Log.d(TAG, "Data='" + text + "'");
-        //TODO: put your record code here. Please note that it is not main thread.
+    public void onCharacteristicChanged(final String name, final String address,
+            final String serviceUuid,
+            final String characteristicUuid) {
+        super.onCharacteristicChanged(name, address, serviceUuid, characteristicUuid);
+        Log.d(TAG, "Service='" + serviceUuid + " characteristic=" + characteristicUuid);
     }
+
 }

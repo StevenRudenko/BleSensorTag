@@ -25,12 +25,13 @@
     <string name="label_device_address">Device address:</string>
     <string name="label_state">State:</string>
     <string name="label_services">Services</string>
-    <string name="no_data">Please select any service</string>
+    <string name="no_data_characteristic">Please select any service</string>
 
     <!-- -->
-    <string name="empty_scan_list">No devices found</string>
-    <string name="empty_services_list">Loading services list...</string>
-    <string name="loading_model">Loading model...</string>
+    <string name="empty_scan_list">Seems there is no BLE device nearby\nPlease try to scan again</string>
+    <string name="loading_model">Loading model…</string>
+    <string name="scan_li_signal_template">%1$s dBm</string>
+    <string name="scan_li_signal_connected">Connected</string>
 
     <!-- Dialog strings -->
     <string name="dialog_error_no_ble">Bluetooth Low Energy technology is not supported on your device.</string>
@@ -61,4 +62,6 @@
     <string name="menu_demo">@string/action_demo</string>
     <string name="menu_lock_orientation">Lock screen rotation</string>
     <string name="menu_unlock_orientation">Allow screen rotation</string>
+    <string name="menu_searching">Searching…</string>
+
 </resources>

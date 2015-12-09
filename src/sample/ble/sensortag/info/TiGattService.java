@@ -2,23 +2,26 @@ package sample.ble.sensortag.info;
 
 import java.util.HashMap;
 
-/**
- * Created by steven on 10/7/13.
- */
-public class TiGattSerivce extends TiInfoService {
-
+/** BLE GATT service. */
+public class TiGattService<T> extends TiInfoService<T> {
+    /** Service UUID. */
     private static final String UUID_SERVICE = "00001801-0000-1000-8000-00805f9b34fb";
-
+    /** Device name UUID. */
     private static final String UUID_DEVICE_NAME = "00002a05-0000-1000-8000-00805f9b34fb";
 
-    private static final HashMap<String, String> CHARACTERISTIC_MAP = new HashMap<String, String>();
+    /** Characteristics. */
+    private static final HashMap<String, String> CHARACTERISTIC_MAP = new HashMap<>();
 
     static {
         CHARACTERISTIC_MAP.put(UUID_DEVICE_NAME, "Service Changed");
     }
 
+    protected TiGattService(T model) {
+        super(model);
+    }
+
     @Override
-    public String getUUID() {
+    public String getServiceUUID() {
         return UUID_SERVICE;
     }
 
@@ -29,8 +32,10 @@ public class TiGattSerivce extends TiInfoService {
 
     @Override
     public String getCharacteristicName(String uuid) {
-        if (!CHARACTERISTIC_MAP.containsKey(uuid))
+        if (!CHARACTERISTIC_MAP.containsKey(uuid)) {
             return "Unknown";
+        }
         return CHARACTERISTIC_MAP.get(uuid);
     }
+
 }

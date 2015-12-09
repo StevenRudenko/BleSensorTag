@@ -3,6 +3,7 @@ package sample.ble.sensortag.fusion;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.TextView;
+
 import rajawali.Object3D;
 import sample.ble.sensortag.R;
 import sample.ble.sensortag.config.AppConfig;
@@ -13,12 +14,10 @@ import sample.ble.sensortag.fusion.sensors.ISensor;
 import sample.ble.sensortag.fusion.sensors.ISensorManager;
 import sample.ble.sensortag.gl.GlFragment;
 
-import java.util.Formatter;
-
 public class SensorFusionFragment extends GlFragment implements ISensorManager.SensorEventListener {
     public final static String TAG = SensorFusionFragment.class.getSimpleName();
 
-    public static final String EXTRA_DEVICE_ADDRESS = TAG+":DEVICE_ADDRESS";
+    public static final String ARG_DEVICE_ADDRESS = TAG+":DEVICE_ADDRESS";
 
     private ISensorManager sensorManager;
     private TextView viewFused;
@@ -47,10 +46,10 @@ public class SensorFusionFragment extends GlFragment implements ISensorManager.S
         super.onViewCreated(view, savedInstanceState);
 
         final Bundle args = getArguments();
-        if (args == null || !args.containsKey(EXTRA_DEVICE_ADDRESS)) {
+        if (args == null || !args.containsKey(ARG_DEVICE_ADDRESS)) {
             sensorManager = new AndroidSensorManager(getActivity());
         } else {
-            final String deviceAddress = args.getString(EXTRA_DEVICE_ADDRESS);
+            final String deviceAddress = args.getString(ARG_DEVICE_ADDRESS);
             sensorManager = new BleSensorManager(getActivity(), deviceAddress);
         }
         sensorManager.setListener(this);

@@ -1,27 +1,33 @@
 package sample.ble.sensortag.sensor;
 
-import static android.bluetooth.BluetoothGattCharacteristic.FORMAT_UINT8;
-
 import android.bluetooth.BluetoothGattCharacteristic;
 
-import sample.ble.sensortag.ble.BleGattExecutor;
+import static android.bluetooth.BluetoothGattCharacteristic.FORMAT_UINT8;
 
-/**
- * Created by steven on 9/3/13.
- */
-public class TiKeysSensor extends TiSensor<TiKeysSensor.SimpleKeysStatus> {
+/** TI key sensor. */
+public class TiKeysSensor extends TiSensor<TiSensorTag> {
 
     private static final String UUID_SERVICE = "0000ffe0-0451-4000-b000-000000000000";
     private static final String UUID_DATA = "0000ffe1-0451-4000-b000-000000000000";
     private static final String UUID_CONFIG = null;
 
-    public enum SimpleKeysStatus {
-        // Warning: The order in which these are defined matters.
-        OFF_OFF, OFF_ON, ON_OFF, ON_ON;
+    TiKeysSensor(TiSensorTag model) {
+        super(model);
     }
 
-    TiKeysSensor() {
-        super();
+    @Override
+    protected boolean apply(BluetoothGattCharacteristic c, TiSensorTag data) {
+        /*
+         * The key state is encoded into 1 unsigned byte.
+         * bit 0 designates the right key.
+         * bit 1 designates the left key.
+         * bit 2 designates the side key.
+         *
+         * Weird, in the userguide left and right are opposite.
+         */
+        final int encodedInteger = c.getIntValue(FORMAT_UINT8, 0);
+        data.setStatus(TiSensorTag.KeysStatus.valueAt(encodedInteger % 4));
+        return true;
     }
 
     @Override
@@ -45,29 +51,8 @@ public class TiKeysSensor extends TiSensor<TiKeysSensor.SimpleKeysStatus> {
     }
 
     @Override
-    public BleGattExecutor.ServiceAction[] enable(boolean enable) {
-        return new BleGattExecutor.ServiceAction[] {
-                notify(enable)
-        };
-    }
-
-    @Override
     public String getDataString() {
-        final SimpleKeysStatus data = getData();
-        return data.name();
+        return getData().getKeyStatus().name();
     }
 
-    @Override
-    public SimpleKeysStatus parse(BluetoothGattCharacteristic c) {
-    /*
-     * The key state is encoded into 1 unsigned byte.
-     * bit 0 designates the right key.
-     * bit 1 designates the left key.
-     * bit 2 designates the side key.
-     *
-     * Weird, in the userguide left and right are opposite.
-     */
-        int encodedInteger = c.getIntValue(FORMAT_UINT8, 0);
-        return SimpleKeysStatus.values()[encodedInteger % 4];
-    }
 }

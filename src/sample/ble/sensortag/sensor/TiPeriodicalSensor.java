@@ -1,15 +1,15 @@
 package sample.ble.sensortag.sensor;
 
-/**
- * Created by steven on 10/7/13.
- */
+/** Periodical sensor. */
 public interface TiPeriodicalSensor {
 
-    public int getMinPeriod();
+    String getPeriodUUID();
 
-    public int getMaxPeriod();
+    int getMinPeriod();
 
-    public void setPeriod(int period);
+    int getMaxPeriod();
 
-    public int getPeriod();
+    void setPeriod(int period);
+
+    int getPeriod();
 }

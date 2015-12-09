@@ -3,7 +3,7 @@ package sample.ble.sensortag.fusion.sensors;
 public abstract class ISensorManager {
 
     public interface SensorEventListener {
-        public void onSensorChanged(int sensorType, float[] values);
+        void onSensorChanged(int sensorType, float[] values);
     }
 
     protected SensorEventListener listener;

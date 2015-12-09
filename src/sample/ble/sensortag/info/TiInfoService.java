@@ -1,17 +1,30 @@
 package sample.ble.sensortag.info;
 
-/**
- * Created by steven on 10/7/13.
- */
-public abstract class TiInfoService {
-    private final static String TAG = TiInfoService.class.getSimpleName();
+import com.chimeraiot.android.ble.sensor.Sensor;
 
-    protected TiInfoService() {
+import android.bluetooth.BluetoothGattCharacteristic;
+
+/**
+ * BLE info service.
+ * @param <M> data model.
+ */
+public abstract class TiInfoService<M> extends Sensor<M> {
+
+    /** Data value. */
+    private String value;
+
+    protected TiInfoService(M model) {
+        super(model);
     }
 
-    public abstract String getUUID();
+    public String getValue() {
+        return value;
+    }
 
-    public abstract String getName();
-
-    public abstract String getCharacteristicName(String uuid);
+    @Override
+    protected boolean apply(final BluetoothGattCharacteristic c, final M data) {
+        value = c.getStringValue(0);
+        // always set it to true to notify update
+        return true;
+    }
 }

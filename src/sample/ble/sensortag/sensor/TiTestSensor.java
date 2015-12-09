@@ -2,19 +2,17 @@ package sample.ble.sensortag.sensor;
 
 import android.bluetooth.BluetoothGattCharacteristic;
 
-import sample.ble.sensortag.ble.BleGattExecutor;
-
-/**
- * Created by steven on 9/3/13.
- */
-public class TiTestSensor extends TiSensor<Void> {
-
+/** TI test sensor. */
+public class TiTestSensor extends TiSensor<TiSensorTag> {
+    /** Service UUID. */
     private static final String UUID_SERVICE = "f000aa60-0451-4000-b000-000000000000";
+    /** Data UUID. */
     private static final String UUID_DATA = "f000aa61-0451-4000-b000-000000000000";
+    /** Config UUID. */
     private static final String UUID_CONFIG = "f000aa62-0451-4000-b000-000000000000";
 
-    TiTestSensor() {
-        super();
+    TiTestSensor(TiSensorTag model) {
+        super(model);
     }
 
     @Override
@@ -43,18 +41,8 @@ public class TiTestSensor extends TiSensor<Void> {
     }
 
     @Override
-    public BleGattExecutor.ServiceAction[] enable(boolean enable) {
-        return new BleGattExecutor.ServiceAction[0];
+    protected boolean apply(final BluetoothGattCharacteristic c, final TiSensorTag data) {
+        return false;
     }
 
-    @Override
-    public BleGattExecutor.ServiceAction notify(boolean start) {
-        return BleGattExecutor.ServiceAction.NULL;
-    }
-
-    @Override
-    public Void parse(BluetoothGattCharacteristic c) {
-        //TODO: implement method
-        return null;
-    }
 }

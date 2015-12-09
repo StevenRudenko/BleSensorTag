@@ -5,9 +5,7 @@ import android.bluetooth.BluetoothGattCharacteristic;
 import static android.bluetooth.BluetoothGattCharacteristic.FORMAT_SINT8;
 import static android.bluetooth.BluetoothGattCharacteristic.FORMAT_UINT8;
 
-/**
- * Created by steven on 9/23/13.
- */
+/** Sensor utils. */
 public class TiSensorUtils {
 
     private TiSensorUtils() {

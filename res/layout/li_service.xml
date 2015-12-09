@@ -2,6 +2,8 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    android:minHeight="?listPreferredItemHeight"
+    android:gravity="center_vertical"
     android:paddingTop="4dp"
     android:paddingBottom="4dp"
     android:paddingRight="10dp"
@@ -13,6 +15,7 @@
         android:layout_height="wrap_content"
         android:layout_toLeftOf="@id/modes"
         android:textAppearance="?android:textAppearanceMedium" />
+
     <TextView
         android:id="@+id/uuid"
         android:layout_width="match_parent"

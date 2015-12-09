@@ -1,12 +1,8 @@
 package sample.ble.sensortag.config;
 
-public interface AppConfig {
-    public static final boolean DEBUG = false;
-    /**
-     * Indicates whether BleService is used as remote service.<br/>
-     * It would send broadcast messages in this case.
-     */
-    public static final boolean REMOTE_BLE_SERVICE = false;
+public class AppConfig {
+    /** Debug flag to enable local sensors fustion. */
+    public static final boolean LOCAL_SENSOR_FUSION = false;
     /**
      * Indicates whether {@link sample.ble.sensortag.BleSensorsRecordService} would be enabled.
      */
@@ -16,5 +12,6 @@ public interface AppConfig {
      */
     public static final boolean SENSOR_FUSION_USE_MAGNET_SENSOR = false;
 
+    /** Device name. */
     public static final String BLE_DEVICE_NAME = "SensorTag";
 }
