@@ -25,6 +25,9 @@ There were SensorTag UUIDs linked in application to get information from BLE dev
 
 Please read official [SensorTag User Guide][2] for more information about SensorTag development.
 
+## Development
+This scample project has been converted into standalone application. BLE code has moved to [Chimera IoT library](https://bitbucket.org/chimeraiot/chimera-ble/). Fixes related to BLE communication will be fixed there. FCs and application bugs would be handled in scope of this repository. 
+
 ## Troubleshooting
 If you have problems with TI Sensor Tag services detection or any sensor doesn't work you should try to update [firmware of SensorTag](http://processors.wiki.ti.com/index.php/SensorTag_Firmware)
 
