@@ -1,9 +1,11 @@
-package sample.ble.sensortag.sensor;
+package sample.ble.sensortag.sensor.ti;
 
 import android.bluetooth.BluetoothGattCharacteristic;
 
+import sample.ble.sensortag.sensor.BaseSensor;
+
 /** TI humidity sensor. */
-public class TiHumiditySensor extends TiSensor<TiSensorTag> {
+public class TiHumiditySensor extends BaseSensor<TiSensorTag> {
     /** Service UUID. */
     private static final String UUID_SERVICE = "f000aa20-0451-4000-b000-000000000000";
     /** Data UUID. */
@@ -43,7 +45,7 @@ public class TiHumiditySensor extends TiSensor<TiSensorTag> {
 
     @Override
     protected boolean apply(final BluetoothGattCharacteristic c, final TiSensorTag data) {
-        int a = TiSensorUtils.shortUnsignedAtOffset(c, 2);
+        int a = TiUtils.shortUnsignedAtOffset(c, 2);
         // bits [1..0] are status bits and need to be cleared according
         // to the userguide, but the iOS code doesn't bother. It should
         // have minimal impact.

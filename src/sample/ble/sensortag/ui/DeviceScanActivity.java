@@ -1,6 +1,6 @@
 package sample.ble.sensortag.ui;
 
-import com.chimeraiot.android.ble.BleScanCompat;
+import com.chimeraiot.android.ble.BleScanner;
 import com.chimeraiot.android.ble.BleUtils;
 
 import android.app.Activity;
@@ -24,10 +24,10 @@ import java.util.List;
 import java.util.Map;
 
 import sample.ble.sensortag.R;
-import sample.ble.sensortag.adapters.BleDevicesAdapter;
+import sample.ble.sensortag.ui.adapters.BleDevicesAdapter;
 import sample.ble.sensortag.config.AppConfig;
-import sample.ble.sensortag.dialogs.EnableBluetoothDialog;
-import sample.ble.sensortag.dialogs.ErrorDialog;
+import sample.ble.sensortag.ui.dialogs.EnableBluetoothDialog;
+import sample.ble.sensortag.ui.dialogs.ErrorDialog;
 import sample.ble.sensortag.fusion.SensorFusionActivity;
 
 /** Activity to scan and displaying available Bluetooth LE devices. */
@@ -43,7 +43,7 @@ public class DeviceScanActivity extends AppCompatActivity
     /** BLE devices adapter. */
     private BleDevicesAdapter leDeviceListAdapter;
     /** BLE scanner. */
-    private BleScanCompat scanner;
+    private BleScanner scanner;
 
     /** FAB. */
     private FloatingActionButton fab;
@@ -101,7 +101,7 @@ public class DeviceScanActivity extends AppCompatActivity
         }
 
         // initialize scanner
-        scanner = new BleScanCompat(bluetoothAdapter, new ScanProcessor());
+        scanner = new BleScanner(bluetoothAdapter, new ScanProcessor());
         scanner.setScanPeriod(SCAN_PERIOD);
     }
 
@@ -221,7 +221,7 @@ public class DeviceScanActivity extends AppCompatActivity
         startActivity(intent);
     }
 
-    private class ScanProcessor implements BleScanCompat.BleDevicesScannerListener {
+    private class ScanProcessor implements BleScanner.BleScannerListener {
 
         /** Scan map. Holds device which was found on ever scan. */
         private final Map<BluetoothDevice, Integer> scanMap = new HashMap<>();

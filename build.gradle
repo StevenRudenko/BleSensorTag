@@ -3,7 +3,7 @@ buildscript {
         jcenter()
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:1.5.0'
+        classpath 'com.android.tools.build:gradle:2.1.2'
     }
 }
 
@@ -15,8 +15,8 @@ repositories {
 apply plugin: 'com.android.application'
 
 android {
-    compileSdkVersion 22
-    buildToolsVersion '22.0.1'
+    compileSdkVersion 24
+    buildToolsVersion '24.0.0'
 
     defaultConfig {
         applicationId "sample.ble.sensortag"
@@ -47,13 +47,13 @@ dependencies {
     compile fileTree(dir: 'libs', include: '*.jar')
 
     // Android annotations
-    compile 'com.android.support:support-annotations:22.2.1'
+    compile 'com.android.support:support-annotations:24.1.0'
     // Material design
-    compile 'com.android.support:appcompat-v7:22.2.1'
-    compile 'com.android.support:design:22.2.1'
+    compile 'com.android.support:appcompat-v7:24.1.0'
+    compile 'com.android.support:design:24.1.0'
 
     // BLE stack wrapper
-    compile ('com.chimeraiot.android:chimera-ble:0.1.5') {
+    compile ('com.chimeraiot.android:chimera-ble:0.1.8') {
         exclude group: 'com.android.support', module: 'support-annotations'
         exclude group: 'com.android.support', module: 'appcompat-v7'
     }

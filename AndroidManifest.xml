@@ -40,6 +40,7 @@ limitations under the License.
     <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
 
     <application
+        android:name=".App"
         android:icon="@drawable/ic_launcher"
         android:label="@string/app_name"
         android:theme="@style/AppTheme.NoActionBar">
@@ -62,7 +63,7 @@ limitations under the License.
             android:label="@string/title_demo_sensor_fusion" />
 
         <service
-            android:name=".SensorTagBleService"
+            android:name=".BleSensorService"
             android:enabled="true" />
 
         <service

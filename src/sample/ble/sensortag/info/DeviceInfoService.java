@@ -3,7 +3,7 @@ package sample.ble.sensortag.info;
 import java.util.HashMap;
 
 /** BLE device info services. */
-public class TiDeviceInfoService<T> extends TiInfoService<T> {
+public class DeviceInfoService<T> extends InfoService<T> {
     /** Service UUID. */
     private static final String UUID_SERVICE = "0000180a-0000-1000-8000-00805f9b34fb";
     /** System ID UUID. */
@@ -40,7 +40,7 @@ public class TiDeviceInfoService<T> extends TiInfoService<T> {
         CHARACTERISTIC_MAP.put(UUID_PNP_ID, "PnP ID");
     }
 
-    protected TiDeviceInfoService(T model) {
+    protected DeviceInfoService(T model) {
         super(model);
     }
 

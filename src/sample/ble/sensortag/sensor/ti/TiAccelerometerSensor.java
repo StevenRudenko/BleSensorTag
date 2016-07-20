@@ -1,10 +1,9 @@
-package sample.ble.sensortag.sensor;
+package sample.ble.sensortag.sensor.ti;
 
 import com.chimeraiot.android.ble.BleGattExecutor;
 
 import android.bluetooth.BluetoothGattCharacteristic;
 import android.os.Bundle;
-import android.util.Log;
 
 import static android.bluetooth.BluetoothGattCharacteristic.FORMAT_SINT8;
 
@@ -78,7 +77,7 @@ public class TiAccelerometerSensor extends TiRangeSensors<TiSensorTag, Float> {
     @Override
     public String getDataString() {
         final float[] data = getData().getAccel();
-        return TiSensorUtils.coordinatesToString(data);
+        return TiUtils.coordinatesToString(data);
     }
 
     @Override
@@ -129,7 +128,7 @@ public class TiAccelerometerSensor extends TiRangeSensors<TiSensorTag, Float> {
         final String uuid = c.getUuid().toString();
         switch (uuid) {
             case UUID_PERIOD:
-                period = TiSensorUtils.shortUnsignedAtOffset(c, 0);
+                period = TiUtils.shortUnsignedAtOffset(c, 0);
                 return true;
             case UUID_DATA:
                 /*

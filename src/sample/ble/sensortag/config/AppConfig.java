@@ -12,6 +12,8 @@ public class AppConfig {
      */
     public static final boolean SENSOR_FUSION_USE_MAGNET_SENSOR = false;
 
-    /** Device name. */
-    public static final String BLE_DEVICE_NAME = "SensorTag";
+    /** Sensor Tag Device name. */
+    public static final String SENSOR_TAG_DEVICE_NAME = "SensorTag";
+    /** Metawear Device name. */
+    public static final String METAWEAR_DEVICE_NAME = "MetaWear";
 }

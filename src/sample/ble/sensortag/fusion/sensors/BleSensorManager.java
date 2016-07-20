@@ -9,9 +9,9 @@ import android.util.SparseArray;
 
 import sample.ble.sensortag.App;
 import sample.ble.sensortag.config.AppConfig;
-import sample.ble.sensortag.sensor.TiRangeSensors;
-import sample.ble.sensortag.sensor.TiSensor;
-import sample.ble.sensortag.sensor.TiSensorTag;
+import sample.ble.sensortag.sensor.BaseSensor;
+import sample.ble.sensortag.sensor.ti.TiRangeSensors;
+import sample.ble.sensortag.sensor.ti.TiSensorTag;
 
 /** BLE fusion sensor manager. */
 public class BleSensorManager extends ISensorManager implements BleServiceListener {
@@ -48,8 +48,8 @@ public class BleSensorManager extends ISensorManager implements BleServiceListen
             return sensors.get(sensorType);
         }
 
-        final TiSensor<?> sensor = (TiSensor<?>) App.DEVICE_DEF_COLLECTION
-                .get(AppConfig.BLE_DEVICE_NAME, deviceAddress)
+        final BaseSensor<?> sensor = (BaseSensor<?>) App.DEVICE_DEF_COLLECTION
+                .get(AppConfig.SENSOR_TAG_DEVICE_NAME, deviceAddress)
                 .getSensor(BleSensor.getSensorUuid(sensorType));
         if (sensor instanceof TiRangeSensors<?, ?>) {
             return new BleSensor((TiRangeSensors<float[], Float>) sensor);
@@ -122,6 +122,11 @@ public class BleSensorManager extends ISensorManager implements BleServiceListen
     @Override
     public void onConnected(final String name, final String address) {
         Log.d(TAG, "connected: " + name);
+    }
+
+    @Override
+    public void onConnectionFailed(String name, String address, int status, int state) {
+        Log.d(TAG, "connection failed: " + name + " status=" + status + " state=" + state);
     }
 
     @Override

@@ -3,7 +3,7 @@ package sample.ble.sensortag.info;
 import java.util.HashMap;
 
 /** BLE GAP service. */
-public class TiGapService<T> extends TiInfoService<T> {
+public class GapService<T> extends InfoService<T> {
     /** Service UUID. */
     private static final String UUID_SERVICE = "00001800-0000-1000-8000-00805f9b34fb";
     /** Device name UUID. */
@@ -28,7 +28,7 @@ public class TiGapService<T> extends TiInfoService<T> {
         CHARACTERISTIC_MAP.put(UUID_PPCP, "Peripheral Preferred Connection Parameters");
     }
 
-    protected TiGapService(T model) {
+    protected GapService(T model) {
         super(model);
     }
 

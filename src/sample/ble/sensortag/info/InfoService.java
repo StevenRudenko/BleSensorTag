@@ -8,12 +8,12 @@ import android.bluetooth.BluetoothGattCharacteristic;
  * BLE info service.
  * @param <M> data model.
  */
-public abstract class TiInfoService<M> extends Sensor<M> {
+public abstract class InfoService<M> extends Sensor<M> {
 
     /** Data value. */
     private String value;
 
-    protected TiInfoService(M model) {
+    protected InfoService(M model) {
         super(model);
     }
 

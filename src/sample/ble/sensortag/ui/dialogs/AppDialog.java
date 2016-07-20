@@ -1,4 +1,4 @@
-package sample.ble.sensortag.dialogs;
+package sample.ble.sensortag.ui.dialogs;
 
 import android.app.Activity;
 import android.app.Dialog;

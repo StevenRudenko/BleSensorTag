@@ -3,7 +3,7 @@ package sample.ble.sensortag.info;
 import java.util.HashMap;
 
 /** BLE GATT service. */
-public class TiGattService<T> extends TiInfoService<T> {
+public class GattService<T> extends InfoService<T> {
     /** Service UUID. */
     private static final String UUID_SERVICE = "00001801-0000-1000-8000-00805f9b34fb";
     /** Device name UUID. */
@@ -16,7 +16,7 @@ public class TiGattService<T> extends TiInfoService<T> {
         CHARACTERISTIC_MAP.put(UUID_DEVICE_NAME, "Service Changed");
     }
 
-    protected TiGattService(T model) {
+    protected GattService(T model) {
         super(model);
     }
 

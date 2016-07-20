@@ -1,10 +1,10 @@
 package sample.ble.sensortag.fusion.sensors;
 
 import android.hardware.Sensor;
-import sample.ble.sensortag.sensor.TiAccelerometerSensor;
-import sample.ble.sensortag.sensor.TiGyroscopeSensor;
-import sample.ble.sensortag.sensor.TiMagnetometerSensor;
-import sample.ble.sensortag.sensor.TiRangeSensors;
+import sample.ble.sensortag.sensor.ti.TiAccelerometerSensor;
+import sample.ble.sensortag.sensor.ti.TiGyroscopeSensor;
+import sample.ble.sensortag.sensor.ti.TiMagnetometerSensor;
+import sample.ble.sensortag.sensor.ti.TiRangeSensors;
 
 import java.util.HashMap;
 

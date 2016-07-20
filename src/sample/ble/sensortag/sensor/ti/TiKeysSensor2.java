@@ -1,4 +1,4 @@
-package sample.ble.sensortag.sensor;
+package sample.ble.sensortag.sensor.ti;
 
 /** TI key sensor V2. */
 public class TiKeysSensor2 extends TiKeysSensor {

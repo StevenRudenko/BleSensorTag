@@ -1,9 +1,11 @@
-package sample.ble.sensortag.sensor;
+package sample.ble.sensortag.sensor.ti;
 
 import android.bluetooth.BluetoothGattCharacteristic;
 
+import sample.ble.sensortag.sensor.BaseSensor;
+
 /** TI test sensor. */
-public class TiTestSensor extends TiSensor<TiSensorTag> {
+public class TiTestSensor extends BaseSensor<TiSensorTag> {
     /** Service UUID. */
     private static final String UUID_SERVICE = "f000aa60-0451-4000-b000-000000000000";
     /** Data UUID. */

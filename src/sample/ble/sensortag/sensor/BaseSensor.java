@@ -3,10 +3,10 @@ package sample.ble.sensortag.sensor;
 import com.chimeraiot.android.ble.sensor.Sensor;
 
 /**
- * Base TI sensor implementation.
+ * Base sensor implementation.
  * @param <T> - data type.
  */
-public abstract class TiSensor<T> extends Sensor<T> {
+public abstract class BaseSensor<T> extends Sensor<T> {
     /** Enabled service. */
     private boolean enabled = false;
 
@@ -14,7 +14,7 @@ public abstract class TiSensor<T> extends Sensor<T> {
      * Constructor.
      * @param data - instance of data.
      */
-    protected TiSensor(T data) {
+    protected BaseSensor(T data) {
         super(data);
     }
 

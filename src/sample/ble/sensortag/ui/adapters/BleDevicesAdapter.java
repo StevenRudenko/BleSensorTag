@@ -1,4 +1,4 @@
-package sample.ble.sensortag.adapters;
+package sample.ble.sensortag.ui.adapters;
 
 import android.bluetooth.BluetoothDevice;
 import android.content.Context;

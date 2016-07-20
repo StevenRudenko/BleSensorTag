@@ -1,4 +1,4 @@
-package sample.ble.sensortag.sensor;
+package sample.ble.sensortag.sensor.ti;
 
 import java.util.Arrays;
 

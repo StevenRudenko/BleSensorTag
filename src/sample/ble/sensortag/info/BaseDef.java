@@ -7,7 +7,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /** BLE base sensor group. */
-public class TiBaseDef<M> extends DeviceDef<M> {
+public class BaseDef<M> extends DeviceDef<M> {
     /** Collection of sensors. */
     private final List<Sensor<M>> sensors = new ArrayList<>();
 
@@ -15,11 +15,11 @@ public class TiBaseDef<M> extends DeviceDef<M> {
      * Constructor.
      * @param model - sensor model.
      */
-    public TiBaseDef(M model) {
+    public BaseDef(M model) {
         super(model);
-        sensors.add(new TiGapService<>(model));
-        sensors.add(new TiDeviceInfoService<>(model));
-        sensors.add(new TiGattService<>(model));
+        sensors.add(new GapService<>(model));
+        sensors.add(new DeviceInfoService<>(model));
+        sensors.add(new GattService<>(model));
     }
 
     @Override

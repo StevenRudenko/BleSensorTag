@@ -1,6 +1,8 @@
-package sample.ble.sensortag.sensor;
+package sample.ble.sensortag.sensor.ti;
 
-public abstract class TiRangeSensors<T, R> extends TiSensor<T> implements TiPeriodicalSensor {
+import sample.ble.sensortag.sensor.BaseSensor;
+
+public abstract class TiRangeSensors<T, R> extends BaseSensor<T> implements TiPeriodicalSensor {
     /**
      * Constructor.
      *

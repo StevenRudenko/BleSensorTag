@@ -1,14 +1,14 @@
-package sample.ble.sensortag.sensor;
+package sample.ble.sensortag.sensor.ti;
 
 import com.chimeraiot.android.ble.sensor.Sensor;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import sample.ble.sensortag.info.TiBaseDef;
+import sample.ble.sensortag.info.BaseDef;
 
 /** TI SensorTag sensor group. */
-public class TiSensorTagDef extends TiBaseDef<TiSensorTag> {
+public class TiSensorTagDef extends BaseDef<TiSensorTag> {
     /** Collection of sensors. */
     private final List<Sensor<TiSensorTag>> sensors = new ArrayList<>();
 

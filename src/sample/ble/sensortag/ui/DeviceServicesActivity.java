@@ -21,13 +21,13 @@ import android.widget.TextView;
 import java.util.List;
 
 import sample.ble.sensortag.R;
-import sample.ble.sensortag.SensorTagBleService;
-import sample.ble.sensortag.adapters.TiServicesAdapter;
+import sample.ble.sensortag.BleSensorService;
+import sample.ble.sensortag.sensor.BaseSensor;
+import sample.ble.sensortag.ui.adapters.BleServicesAdapter;
 import sample.ble.sensortag.config.AppConfig;
 import sample.ble.sensortag.fusion.SensorFusionActivity;
-import sample.ble.sensortag.info.TiInfoService;
-import sample.ble.sensortag.sensor.TiPeriodicalSensor;
-import sample.ble.sensortag.sensor.TiSensor;
+import sample.ble.sensortag.info.InfoService;
+import sample.ble.sensortag.sensor.ti.TiPeriodicalSensor;
 
 /**
  * For a given BLE device, this Activity provides the user interface to connect, display data,
@@ -37,7 +37,7 @@ import sample.ble.sensortag.sensor.TiSensor;
  */
 public class DeviceServicesActivity extends BleServiceBindingActivity
         implements ExpandableListView.OnChildClickListener,
-        TiServicesAdapter.OnServiceItemClickListener {
+        BleServicesAdapter.OnServiceItemClickListener {
     /** Log tag. */
     @SuppressWarnings("UnusedDeclaration")
     private final static String TAG = DeviceServicesActivity.class.getSimpleName();
@@ -49,14 +49,14 @@ public class DeviceServicesActivity extends BleServiceBindingActivity
     /** Services list. */
     private ExpandableListView gattServicesList;
     /** Services adapter. */
-    private TiServicesAdapter gattServiceAdapter;
+    private BleServicesAdapter gattServiceAdapter;
 
     /** Active sensor. */
-    private TiSensor<?> activeSensor;
+    private BaseSensor<?> activeSensor;
 
     @Override
     public Class<? extends BleService> getServiceClass() {
-        return SensorTagBleService.class;
+        return BleSensorService.class;
     }
 
     @Override
@@ -96,7 +96,7 @@ public class DeviceServicesActivity extends BleServiceBindingActivity
             getMenuInflater().inflate(R.menu.gatt_services, menu);
             // enable demo for SensorTag device only
             menu.findItem(R.id.menu_demo).setEnabled(
-                    deviceName.startsWith(AppConfig.BLE_DEVICE_NAME));
+                    deviceName.startsWith(AppConfig.SENSOR_TAG_DEVICE_NAME));
         }
         return true;
     }
@@ -143,11 +143,11 @@ public class DeviceServicesActivity extends BleServiceBindingActivity
             }
             dataCharacteristic.setText(uuid);
 
-            if (sensor instanceof TiSensor) {
-                final TiSensor<?> tiSensor = (TiSensor<?>) sensor;
+            if (sensor instanceof BaseSensor) {
+                final BaseSensor<?> tiSensor = (BaseSensor<?>) sensor;
                 dataValue.setText(tiSensor.getDataString());
-            } else if (sensor instanceof TiInfoService) {
-                final TiInfoService<?> infoSensor = (TiInfoService<?>) sensor;
+            } else if (sensor instanceof InfoService) {
+                final InfoService<?> infoSensor = (InfoService<?>) sensor;
                 dataValue.setText(infoSensor.getValue());
             } else {
                 final Object data = sensor.getData();
@@ -176,23 +176,22 @@ public class DeviceServicesActivity extends BleServiceBindingActivity
         if (sensor == null) {
             return true;
         }
-
-        final String address = getDeviceAddress();
         if (sensor == activeSensor) {
             return true;
         }
 
-        if (sensor instanceof TiSensor) {
-            final TiSensor<?> tiSensor = (TiSensor<?>) sensor;
+        final String address = getDeviceAddress();
+        if (sensor instanceof BaseSensor) {
+            final BaseSensor<?> baseSensor = (BaseSensor<?>) sensor;
             if (activeSensor != null) {
                 activeSensor.setEnabled(false);
                 getBleManager().update(address, activeSensor, activeSensor.getConfigUUID(), null);
             }
 
-            activeSensor = tiSensor;
-            tiSensor.setEnabled(true);
-            getBleManager().update(address, sensor, tiSensor.getConfigUUID(), null);
-            getBleManager().listen(address, sensor, tiSensor.getDataUUID());
+            activeSensor = baseSensor;
+            baseSensor.setEnabled(true);
+            getBleManager().update(address, sensor, baseSensor.getConfigUUID(), null);
+            getBleManager().listen(address, sensor, baseSensor.getDataUUID());
         } else {
             getBleManager().read(address, sensor, characteristic.getUuid().toString());
         }
@@ -201,7 +200,7 @@ public class DeviceServicesActivity extends BleServiceBindingActivity
 
     @Override
     public void onServiceUpdated(BluetoothGattService service) {
-        final TiSensor<?> sensor = (TiSensor<?>) getBleManager().getDeviceDefCollection()
+        final BaseSensor<?> sensor = (BaseSensor<?>) getBleManager().getDeviceDefCollection()
                 .get(getDeviceName(), getDeviceAddress())
                 .getSensor(service.getUuid().toString());
         if (sensor != null && sensor instanceof TiPeriodicalSensor) {
@@ -216,7 +215,7 @@ public class DeviceServicesActivity extends BleServiceBindingActivity
         }
         final DeviceDef def = getBleManager().getDeviceDefCollection().get(
                 getDeviceName(), getDeviceAddress());
-        gattServiceAdapter = new TiServicesAdapter(this, gattServices, def);
+        gattServiceAdapter = new BleServicesAdapter(this, gattServices, def);
         gattServiceAdapter.setServiceListener(this);
         gattServicesList.setAdapter(gattServiceAdapter);
     }

@@ -1,4 +1,4 @@
-package sample.ble.sensortag.adapters;
+package sample.ble.sensortag.ui.adapters;
 
 import com.chimeraiot.android.ble.sensor.DeviceDef;
 import com.chimeraiot.android.ble.sensor.Sensor;
@@ -19,11 +19,11 @@ import java.util.HashMap;
 import java.util.List;
 
 import sample.ble.sensortag.R;
-import sample.ble.sensortag.sensor.TiPeriodicalSensor;
-import sample.ble.sensortag.sensor.TiSensor;
+import sample.ble.sensortag.sensor.BaseSensor;
+import sample.ble.sensortag.sensor.ti.TiPeriodicalSensor;
 
 /** BLE services and characteristics adapter. */
-public class TiServicesAdapter extends BaseExpandableListAdapter {
+public class BleServicesAdapter extends BaseExpandableListAdapter {
 
     public interface OnServiceItemClickListener {
 
@@ -49,7 +49,7 @@ public class TiServicesAdapter extends BaseExpandableListAdapter {
     @Nullable
     private final DeviceDef def;
 
-    public TiServicesAdapter(Context context, List<BluetoothGattService> gattServices,
+    public BleServicesAdapter(Context context, List<BluetoothGattService> gattServices,
             @Nullable DeviceDef def) {
         inflater = LayoutInflater.from(context);
 
@@ -163,7 +163,7 @@ public class TiServicesAdapter extends BaseExpandableListAdapter {
                         return;
                     }
 
-                    final TiSensor<?> sensor = (TiSensor<?>) def.getSensor(
+                    final BaseSensor<?> sensor = (BaseSensor<?>) def.getSensor(
                             holder.service.getUuid().toString());
                     if (sensor == null) {
                         return;
@@ -206,8 +206,8 @@ public class TiServicesAdapter extends BaseExpandableListAdapter {
 
         if (sensor != null) {
             name = sensor.getCharacteristicName(uuid);
-            if (sensor instanceof TiSensor) {
-                final TiSensor<?> tiSensor = (TiSensor<?>) sensor;
+            if (sensor instanceof BaseSensor) {
+                final BaseSensor<?> tiSensor = (BaseSensor<?>) sensor;
                 if (tiSensor.isConfigUUID(uuid)) {
                     if (sensor instanceof TiPeriodicalSensor) {
                         final TiPeriodicalSensor periodicalSensor = (TiPeriodicalSensor) sensor;
@@ -217,7 +217,6 @@ public class TiServicesAdapter extends BaseExpandableListAdapter {
                                 .getMinPeriod();
                         holder.seek.setMax(max);
                         holder.seek.setProgress(value);
-
                         holder.seek.setVisibility(View.VISIBLE);
                         holder.uuid.setVisibility(View.GONE);
                     }

@@ -1,7 +1,7 @@
 package sample.ble.sensortag;
 
 import com.chimeraiot.android.ble.BleManager;
-import com.chimeraiot.android.ble.BleScanCompat;
+import com.chimeraiot.android.ble.BleScanner;
 import com.chimeraiot.android.ble.BleService;
 import com.chimeraiot.android.ble.BleUtils;
 
@@ -12,8 +12,8 @@ import android.util.Log;
 import android.widget.Toast;
 
 import sample.ble.sensortag.config.AppConfig;
-import sample.ble.sensortag.sensor.TiAccelerometerSensor;
-import sample.ble.sensortag.sensor.TiSensor;
+import sample.ble.sensortag.sensor.BaseSensor;
+import sample.ble.sensortag.sensor.ti.TiAccelerometerSensor;
 
 /** Record sensor data exmaple service. */
 public class BleSensorsRecordService extends BleService {
@@ -26,7 +26,7 @@ public class BleSensorsRecordService extends BleService {
     private static final String SENSOR_TO_READ = TiAccelerometerSensor.UUID_SERVICE;
 
     /** BLE device scanner. */
-    private BleScanCompat scanner;
+    private BleScanner scanner;
 
     @Override
     public void onCreate() {
@@ -53,7 +53,7 @@ public class BleSensorsRecordService extends BleService {
 
         // initialize scanner
         final BluetoothAdapter bluetoothAdapter = BleUtils.getBluetoothAdapter(getBaseContext());
-        scanner = new BleScanCompat(bluetoothAdapter, new BleScanCompat.BleDevicesScannerListener() {
+        scanner = new BleScanner(bluetoothAdapter, new BleScanner.BleScannerListener() {
             @Override
             public void onScanStarted() {
             }
@@ -120,7 +120,7 @@ public class BleSensorsRecordService extends BleService {
         super.onServiceDiscovered(name, address);
         Log.d(TAG, "Service discovered");
 
-        final TiSensor<?> sensor = (TiSensor<?>) getBleManager().getDeviceDefCollection()
+        final BaseSensor<?> sensor = (BaseSensor<?>) getBleManager().getDeviceDefCollection()
                 .get(name, address).getSensor(SENSOR_TO_READ);
         if (sensor != null) {
             sensor.setEnabled(true);

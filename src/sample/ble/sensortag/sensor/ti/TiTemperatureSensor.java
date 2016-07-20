@@ -1,11 +1,13 @@
-package sample.ble.sensortag.sensor;
+package sample.ble.sensortag.sensor.ti;
 
 import android.bluetooth.BluetoothGattCharacteristic;
+
+import sample.ble.sensortag.sensor.BaseSensor;
 
 import static java.lang.Math.pow;
 
 /** TI temperature sensor. */
-public class TiTemperatureSensor extends TiSensor<TiSensorTag> {
+public class TiTemperatureSensor extends BaseSensor<TiSensorTag> {
     /** Service UUID. */
     private static final String UUID_SERVICE = "f000aa00-0451-4000-b000-000000000000";
     /** Data UUID. */
@@ -66,11 +68,11 @@ public class TiTemperatureSensor extends TiSensor<TiSensorTag> {
 
     private static double extractAmbientTemperature(BluetoothGattCharacteristic c) {
         int offset = 2;
-        return TiSensorUtils.shortUnsignedAtOffset(c, offset) / 128.0;
+        return TiUtils.shortUnsignedAtOffset(c, offset) / 128.0;
     }
 
     private static double extractTargetTemperature(BluetoothGattCharacteristic c, double ambient) {
-        Integer twoByteValue = TiSensorUtils.shortSignedAtOffset(c, 0);
+        Integer twoByteValue = TiUtils.shortSignedAtOffset(c, 0);
 
         double Vobj2 = twoByteValue.doubleValue();
         Vobj2 *= 0.00000015625;

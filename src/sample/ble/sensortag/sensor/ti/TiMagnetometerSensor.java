@@ -1,20 +1,21 @@
-package sample.ble.sensortag.sensor;
+package sample.ble.sensortag.sensor.ti;
 
 import com.chimeraiot.android.ble.BleGattExecutor;
 
 import android.bluetooth.BluetoothGattCharacteristic;
 import android.os.Bundle;
 
-/** TI gyroscope sensor. */
-public class TiGyroscopeSensor extends TiRangeSensors<TiSensorTag, Float> {
+/** TI magnetometer sensor. */
+public class TiMagnetometerSensor extends TiRangeSensors<TiSensorTag, Float> {
+
     /** Service UUID. */
-    public static final String UUID_SERVICE = "f000aa50-0451-4000-b000-000000000000";
+    public static final String UUID_SERVICE = "f000aa30-0451-4000-b000-000000000000";
     /** Data UUID. */
-    private static final String UUID_DATA = "f000aa51-0451-4000-b000-000000000000";
+    private static final String UUID_DATA = "f000aa31-0451-4000-b000-000000000000";
     /** Configuration UUID. */
-    private static final String UUID_CONFIG = "f000aa52-0451-4000-b000-000000000000";
+    private static final String UUID_CONFIG = "f000aa32-0451-4000-b000-000000000000";
     /** Period UUID. */
-    private static final String UUID_PERIOD = "f000aa53-0451-4000-b000-000000000000";
+    private static final String UUID_PERIOD = "f000aa33-0451-4000-b000-000000000000";
 
     /** Min period value. */
     public static final int PERIOD_MIN = 1;
@@ -22,15 +23,15 @@ public class TiGyroscopeSensor extends TiRangeSensors<TiSensorTag, Float> {
     public static final int PERIOD_MAX = 255;
 
     /** Period. */
-    private int period = 100;
+    private int period = 200;
 
-    TiGyroscopeSensor(TiSensorTag model) {
+    TiMagnetometerSensor(TiSensorTag model) {
         super(model);
     }
 
     @Override
     public String getName() {
-        return "Gyroscope";
+        return "Magnetometer";
     }
 
     @Override
@@ -65,8 +66,6 @@ public class TiGyroscopeSensor extends TiRangeSensors<TiSensorTag, Float> {
     @Override
     public String getCharacteristicName(String uuid) {
         switch (uuid) {
-            case UUID_DATA:
-                return "Data";
             case UUID_PERIOD:
                 return "Period";
             default:
@@ -76,8 +75,8 @@ public class TiGyroscopeSensor extends TiRangeSensors<TiSensorTag, Float> {
 
     @Override
     public String getDataString() {
-        final float[] data = getData().getGyro();
-        return TiSensorUtils.coordinatesToString(data);
+        final float[] data = getData().getMagnet();
+        return TiUtils.coordinatesToString(data);
     }
 
     @Override
@@ -114,19 +113,8 @@ public class TiGyroscopeSensor extends TiRangeSensors<TiSensorTag, Float> {
                 };
             case UUID_CONFIG:
                 return new BleGattExecutor.ServiceAction[]{
-                        write(uuid, new byte[] {
-                                // NB: Gyroscope is special as it has a different "enable-code" from the other sensors.
-                                // Gyroscope is unique in that you can enable any combination of the the 3 axes when you
-                                // write to the configuration characteristic.
-                                // Write 0 to turn off gyroscope,
-                                //       1 to enable X axis only,
-                                //       2 to enable Y axis only,
-                                //       3 = X and Y,
-                                //       4 = Z only,
-                                //       5 = X and Z,
-                                //       6 = Y and Z,
-                                //       7 = X, Y and Z
-                                (byte)(isEnabled() ? 7 : 0)
+                        write(uuid, new byte[]{
+                                (byte) (isEnabled() ? 1 : 0)
                         })
                 };
             default:
@@ -135,19 +123,19 @@ public class TiGyroscopeSensor extends TiRangeSensors<TiSensorTag, Float> {
     }
 
     @Override
-    protected boolean apply(BluetoothGattCharacteristic c, TiSensorTag data) {
+    protected boolean apply(final BluetoothGattCharacteristic c, final TiSensorTag data) {
         final String uuid = c.getUuid().toString();
         switch (uuid) {
             case UUID_PERIOD:
-                period = TiSensorUtils.shortUnsignedAtOffset(c, 0);
+                period = TiUtils.shortUnsignedAtOffset(c, 0);
                 return true;
             case UUID_DATA:
-                // NB: x,y,z has a weird order.
-                float y = TiSensorUtils.shortSignedAtOffset(c, 0) * (500f / 65536f) * -1;
-                float x = TiSensorUtils.shortSignedAtOffset(c, 2) * (500f / 65536f);
-                float z = TiSensorUtils.shortSignedAtOffset(c, 4) * (500f / 65536f);
+                // Multiply x and y with -1 so that the values correspond with our pretty pictures in the app.
+                float x = TiUtils.shortSignedAtOffset(c, 0) * (2000f / 65536f) * -1;
+                float y = TiUtils.shortSignedAtOffset(c, 2) * (2000f / 65536f) * -1;
+                float z = TiUtils.shortSignedAtOffset(c, 4) * (2000f / 65536f);
 
-                final float[] values = data.getGyro();
+                final float[] values = data.getMagnet();
                 values[0] = x;
                 values[1] = y;
                 values[2] = z;

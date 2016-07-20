@@ -1,14 +1,15 @@
-package sample.ble.sensortag.sensor;
+package sample.ble.sensortag.sensor.ti;
 
+import android.annotation.SuppressLint;
 import android.bluetooth.BluetoothGattCharacteristic;
 
 import static android.bluetooth.BluetoothGattCharacteristic.FORMAT_SINT8;
 import static android.bluetooth.BluetoothGattCharacteristic.FORMAT_UINT8;
 
 /** Sensor utils. */
-public class TiSensorUtils {
+public class TiUtils {
 
-    private TiSensorUtils() {
+    private TiUtils() {
     }
 
     /**
@@ -41,7 +42,9 @@ public class TiSensorUtils {
         return (upperByte << 8) + lowerByte;
     }
 
+    @SuppressLint("DefaultLocale")
     public static String coordinatesToString(float[] coordinates) {
-        return String.format("x=%+.6f\ny=%+.6f\nz=%+.6f", coordinates[0], coordinates[1], coordinates[2]);
+        return String.format("x=%+.6f\ny=%+.6f\nz=%+.6f",
+                coordinates[0], coordinates[1], coordinates[2]);
     }
 }

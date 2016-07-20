@@ -1,14 +1,16 @@
-package sample.ble.sensortag.sensor;
+package sample.ble.sensortag.sensor.ti;
 
 import com.chimeraiot.android.ble.BleGattExecutor;
 
 import android.bluetooth.BluetoothGattCharacteristic;
 import android.os.Bundle;
 
+import sample.ble.sensortag.sensor.BaseSensor;
+
 import static java.lang.Math.pow;
 
 /** TI pressure sensor. */
-public class TiPressureSensor extends TiSensor<TiSensorTag> {
+public class TiPressureSensor extends BaseSensor<TiSensorTag> {
     /** Service UUID. */
     private static final String UUID_SERVICE = "f000aa40-0451-4000-b000-000000000000";
     /** Data UUID. */
@@ -86,8 +88,8 @@ public class TiPressureSensor extends TiSensor<TiSensorTag> {
         switch (uuid) {
             case UUID_CALIBRATION:
                 for (int i = 0; i < 4; ++i) {
-                    calibration[i] = TiSensorUtils.shortUnsignedAtOffset(c, i * 2);
-                    calibration[i + 4] = TiSensorUtils.shortSignedAtOffset(c, 8 + i * 2);
+                    calibration[i] = TiUtils.shortUnsignedAtOffset(c, i * 2);
+                    calibration[i + 4] = TiUtils.shortSignedAtOffset(c, 8 + i * 2);
                 }
                 return true;
             case UUID_DATA:
@@ -99,8 +101,8 @@ public class TiPressureSensor extends TiSensor<TiSensorTag> {
                 final Double O;    // Interim value in calculation
                 final Double p_a;    // Pressure actual value in unit Pascal.
 
-                t_r = TiSensorUtils.shortSignedAtOffset(c, 0);
-                p_r = TiSensorUtils.shortUnsignedAtOffset(c, 2);
+                t_r = TiUtils.shortSignedAtOffset(c, 0);
+                p_r = TiUtils.shortUnsignedAtOffset(c, 2);
 
                 t_a = (100 * (calibration[0] * t_r / pow(2, 8) + calibration[1] * pow(2, 6))) / pow(2, 16);
                 S = calibration[2] + calibration[3] * t_r / pow(2, 17)
