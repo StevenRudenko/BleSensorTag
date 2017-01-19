@@ -96,7 +96,7 @@ public class DeviceServicesActivity extends BleServiceBindingActivity
             getMenuInflater().inflate(R.menu.gatt_services, menu);
             // enable demo for SensorTag device only
             menu.findItem(R.id.menu_demo).setEnabled(
-                    deviceName.startsWith(AppConfig.SENSOR_TAG_DEVICE_NAME));
+                    AppConfig.SENSOR_FUSION_DEVICES.contains(deviceName));
         }
         return true;
     }

@@ -28,6 +28,7 @@ public class App extends Application {
                 }
                 switch (name) {
                     case AppConfig.SENSOR_TAG_DEVICE_NAME:
+                    case AppConfig.SENSOR_TAG_V2_DEVICE_NAME:
                         return new TiSensorTagDef(address);
                     case AppConfig.METAWEAR_DEVICE_NAME:
                         return new MetawearDef(address);
