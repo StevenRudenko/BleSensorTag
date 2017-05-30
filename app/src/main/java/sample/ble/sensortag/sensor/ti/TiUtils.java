@@ -3,9 +3,6 @@ package sample.ble.sensortag.sensor.ti;
 import android.annotation.SuppressLint;
 import android.bluetooth.BluetoothGattCharacteristic;
 
-import static android.bluetooth.BluetoothGattCharacteristic.FORMAT_SINT8;
-import static android.bluetooth.BluetoothGattCharacteristic.FORMAT_UINT8;
-
 /** Sensor utils. */
 public class TiUtils {
 
@@ -21,25 +18,26 @@ public class TiUtils {
      * This function extracts these 16 bit two's complement values.
      * */
     public static Integer shortSignedAtOffset(BluetoothGattCharacteristic c, int offset) {
-        Integer lowerByte = c.getIntValue(FORMAT_UINT8, offset);
-        if (lowerByte == null)
-            return 0;
-        Integer upperByte = c.getIntValue(FORMAT_SINT8, offset + 1); // Note: interpret MSB as signed.
-        if (upperByte == null)
-            return 0;
-
+        byte[] value = c.getValue();
+        Integer lowerByte = (int) value[offset] & 0xFF;
+        Integer upperByte = (int) value[offset + 1]; // Note: interpret MSB as signed.
         return (upperByte << 8) + lowerByte;
     }
 
     public static Integer shortUnsignedAtOffset(BluetoothGattCharacteristic c, int offset) {
-        Integer lowerByte = c.getIntValue(FORMAT_UINT8, offset);
-        if (lowerByte == null)
-            return 0;
-        Integer upperByte = c.getIntValue(FORMAT_UINT8, offset + 1); // Note: interpret MSB as unsigned.
-        if (upperByte == null)
-            return 0;
-
+        byte[] value = c.getValue();
+        Integer lowerByte = (int) value[offset] & 0xFF;
+        Integer upperByte = (int) value[offset + 1] & 0xFF; // Note: interpret MSB as unsigned.
         return (upperByte << 8) + lowerByte;
+    }
+
+    public static Integer twentyFourBitUnsignedAtOffset(BluetoothGattCharacteristic c, int offset) {
+        byte[] value = c.getValue();
+        Integer lowerByte = (int) value[offset] & 0xFF;
+        Integer mediumByte = (int) value[offset + 1] & 0xFF;
+        Integer upperByte = (int) value[offset + 2] & 0xFF;
+        return (upperByte << 16) + (mediumByte << 8) + lowerByte;
+
     }
 
     @SuppressLint("DefaultLocale")

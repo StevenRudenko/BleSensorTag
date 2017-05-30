@@ -46,7 +46,9 @@ limitations under the License.
             </intent-filter>
         </activity>
 
-        <activity android:name=".ui.DeviceServicesActivity" />
+        <activity
+            android:name=".ui.DeviceServicesActivity"
+            android:configChanges="keyboard|orientation" />
 
         <activity
             android:name=".fusion.SensorFusionActivity"
