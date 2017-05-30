@@ -3,59 +3,17 @@ buildscript {
         jcenter()
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:2.2.3'
+        classpath 'com.android.tools.build:gradle:2.3.2'
     }
 }
 
-repositories {
-    jcenter()
-    maven { url "http://dl.bintray.com/chimeraiot/maven" }
+allprojects {
+    repositories {
+        jcenter()
+        maven { url "http://dl.bintray.com/chimeraiot/maven" }
+    }
 }
 
-apply plugin: 'com.android.application'
-
-android {
-    compileSdkVersion 24
-    buildToolsVersion '24.0.0'
-
-    defaultConfig {
-        applicationId "sample.ble.sensortag"
-        minSdkVersion 18
-        targetSdkVersion 22
-        versionCode 10
-        versionName "2.3"
-    }
-
-    sourceSets {
-        main {
-            manifest.srcFile 'AndroidManifest.xml'
-            java.srcDirs = ['src']
-            resources.srcDirs = ['src']
-            aidl.srcDirs = ['aidl']
-            renderscript.srcDirs = ['src']
-            res.srcDirs = ['res']
-            assets.srcDirs = ['assets']
-        }
-
-        debug.setRoot('build-types/debug')
-        release.setRoot('build-types/release')
-    }
-
-}
-
-dependencies {
-    compile fileTree(dir: 'libs', include: '*.jar')
-
-    // Android annotations
-    compile 'com.android.support:support-annotations:24.1.0'
-    // Material design
-    compile 'com.android.support:appcompat-v7:24.1.0'
-    compile 'com.android.support:design:24.1.0'
-
-    // BLE stack wrapper
-    compile ('com.chimeraiot.android:chimera-ble:0.1.8') {
-        exclude group: 'com.android.support', module: 'support-annotations'
-        exclude group: 'com.android.support', module: 'appcompat-v7'
-    }
-
+task clean(type: Delete) {
+    delete rootProject.buildDir
 }
